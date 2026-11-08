@@ -1,8 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { users, saveUsers } = require('../config/data');
-
-const JWT_SECRET = process.env.JWT_SECRET || 'smarttour_super_secret_key_2026_jwt';
+const JWT_SECRET = require('../config/jwt');
 
 /**
  * Đăng ký tài khoản Khách hàng mới (Customer)

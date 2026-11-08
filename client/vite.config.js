@@ -8,6 +8,12 @@ export default defineConfig({
     host: '0.0.0.0', // Cho phép mọi thiết bị trong mạng LAN (điện thoại, máy tính bảng) truy cập
     port: 5173,
     cors: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+      },
+    },
   },
   preview: {
     host: '0.0.0.0',
