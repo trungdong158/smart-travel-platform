@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   Heart, User, LayoutDashboard, LogOut, Menu, X, 
-  CalendarClock, ChevronDown, Sun, Moon 
+  CalendarClock, ChevronDown, Sun, Moon, BookOpen 
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useWishlist } from '../context/WishlistContext';
@@ -62,6 +62,10 @@ export default function Navbar() {
         <nav className="hidden md:flex items-center gap-3 lg:gap-4 xl:gap-5 text-sm font-semibold text-slate-600 dark:text-slate-300 shrink-0">
           <Link to="/" className="hover:text-amber-600 dark:hover:text-amber-400 transition whitespace-nowrap shrink-0">Trang chủ</Link>
           <Link to="/tours" className="hover:text-amber-600 dark:hover:text-amber-400 transition whitespace-nowrap shrink-0">Khám phá tour</Link>
+          <Link to="/blog" className="hover:text-amber-600 dark:hover:text-amber-400 transition flex items-center gap-1.5 whitespace-nowrap shrink-0">
+            <BookOpen className="w-4 h-4 text-amber-500" />
+            <span>Blog</span>
+          </Link>
           
 
           {/* Chỉ khách hàng thông thường mới cần nút Tour của tôi trên thanh điều hướng chính */}

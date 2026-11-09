@@ -60,6 +60,20 @@ Khác biệt hoàn toàn với các website đặt tour truyền thống chỉ l
 ### 7. 🎬 Màn Hình Khởi Động Điện Ảnh (Cinematic Loading Screen)
 * Thay thế hoàn toàn màn hình trắng đơn điệu bằng giao diện phát sáng huyền ảo mang logo SoulTrip, thanh tiến trình mượt mà, thông điệp truyền cảm hứng tự động đổi mới và các mood pills rực rỡ.
 
+### 8. 📝 Cộng Đồng SoulTrip Blog & Cuộn Vô Hạn (Infinite Scroll) Chuẩn Facebook — Tính Năng Nâng Cao
+* **Nút điều hướng Blog trên thanh Navigation:** Cho phép du khách dễ dàng truy cập chuyên mục chia sẻ trải nghiệm từ mọi trang (hỗ trợ cả Desktop & Mobile Menu).
+* **Cơ chế Cuộn Vô Hạn (Infinite Scroll) chuẩn mạng xã hội (Facebook Feed):**
+  * Ban đầu nạp 2 bài viết đầu tiên (Page 1, limit = 2).
+  * Khi người dùng cuộn đến đáy trang, hệ thống tự động phát hiện bằng `IntersectionObserver` và nạp nối tiếp bài viết 3 và 4 (Page 2), tiếp tục đến bài 5 và 6...
+  * **Tuyệt đối không xóa, không ẩn, không ghi đè** các bài viết đã nạp trước đó; cơ chế Deduplication lọc trùng lặp ID thông minh đảm bảo không có bài viết nào bị hiển thị 2 lần.
+  * Khi đã duyệt hết toàn bộ kho bài viết, màn hình hiển thị biểu ngữ thông báo tinh tế: *"🎉 Bạn đã xem hết tất cả bài viết hôm nay!"*.
+* **Tương tác đa chiều:**
+  * Thả tim (Like) với phản hồi lạc quan tức thì (Optimistic UI).
+  * Bình luận trực tiếp trong từng bài viết kèm avatar và thời gian đăng.
+* **Gắn thẻ Tour liên quan (Tour Tagging):** Mỗi bài viết du lịch có thể liên kết trực tiếp với tour tương ứng kèm nút **"Xem & Đặt chuyến này"** dẫn sang trang chi tiết tour.
+* **Đăng tải bài viết mới:** Người dùng có thể chia sẻ câu chuyện, chọn mood cảm xúc, gắn link tour và tải ảnh lên.
+* **Mục "Bài Viết Của Tôi" trong Trang Cá Nhân (`/profile`):** Phân hệ quản lý riêng biệt cho phép thành viên theo dõi các bài viết đã đăng, kiểm tra số lượt thích, số bình luận, xem lại trên Blog hoặc xóa bài viết.
+
 ---
 
 ## 🎯 CÁC PHÂN HỆ NGƯỜI DÙNG & TÍNH NĂNG CHI TIẾT
@@ -87,7 +101,11 @@ Khác biệt hoàn toàn với các website đặt tour truyền thống chỉ l
 * **Thanh toán trực tuyến & Vé E-Ticket:** Trực tiếp chọn quét mã VietQR hoặc MoMo để nhận ngay vé máy bay/tour có mã QR Code.
 * **Danh sách Yêu thích (Wishlist):** Thả tim lưu các tour yêu thích và đồng bộ trạng thái toàn hệ thống.
 * **Quản lý Tour đã đặt (My Bookings):** Xem danh sách vé đã đặt, trạng thái đơn (**Chờ duyệt**, **Đã duyệt**, **Đã hủy**), chủ động hủy vé khi còn chờ duyệt, mở lại vé điện tử E-Ticket bất cứ lúc nào.
-* **Hồ sơ cá nhân (Profile):** Cập nhật thông tin cá nhân và đổi mật khẩu bảo mật.
+* **Hồ sơ cá nhân (Profile):** Cập nhật thông tin cá nhân, đổi ảnh đại diện (từ thiết bị / link / kho mẫu), đổi mật khẩu bảo mật.
+* **Cộng đồng Blog & Quản lý bài viết:**
+  * Chia sẻ trải nghiệm du lịch cá nhân, cảm xúc vui buồn, hình ảnh và gắn thẻ tour tương ứng.
+  * Tương tác bình luận, thả tim bài viết trong cộng đồng.
+  * Mục **"Bài viết của tôi"** trong trang cá nhân: Xem danh sách câu chuyện đã đăng, thống kê lượt xem/thích/bình luận, và quyền xóa bài viết.
 
 ### 3. Quản Trị Viên (Admin)
 * **Bảng điều khiển (Admin Dashboard):**

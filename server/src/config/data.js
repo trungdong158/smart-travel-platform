@@ -10,6 +10,7 @@ if (!fs.existsSync(STORAGE_DIR)) {
 const USERS_FILE = path.join(STORAGE_DIR, 'users.json');
 const TOURS_FILE = path.join(STORAGE_DIR, 'tours.json');
 const BOOKINGS_FILE = path.join(STORAGE_DIR, 'bookings.json');
+const BLOGS_FILE = path.join(STORAGE_DIR, 'blogs.json');
 
 /**
  * Dữ liệu người dùng khởi tạo hệ thống mặc định (Chỉ giữ tài khoản Admin)
@@ -845,6 +846,7 @@ const vouchers = [
 let users = [];
 let tours = [];
 let bookings = [];
+let blogs = [];
 
 function loadData() {
   try {
@@ -882,6 +884,18 @@ function loadData() {
     console.error('Lỗi đọc file bookings.json, khởi tạo mặc định:', err.message);
     bookings = [...defaultBookings];
   }
+  try {
+    if (fs.existsSync(BLOGS_FILE)) {
+      blogs = JSON.parse(fs.readFileSync(BLOGS_FILE, 'utf8'));
+    } else {
+      blogs = [];
+      fs.writeFileSync(BLOGS_FILE, JSON.stringify(blogs, null, 2), 'utf8');
+    }
+  } catch (err) {
+    console.error('Lỗi đọc file blogs.json, khởi tạo rỗng:', err.message);
+    blogs = [];
+  }
+
 }
 
 loadData();
@@ -903,6 +917,15 @@ function saveTours() {
   }
 }
 
+
+function saveBlogs() {
+  try {
+    fs.writeFileSync(BLOGS_FILE, JSON.stringify(blogs, null, 2), 'utf8');
+  } catch (err) {
+    console.error('Lỗi khi ghi blogs.json:', err.message);
+  }
+}
+
 function saveBookings() {
   try {
     fs.writeFileSync(BOOKINGS_FILE, JSON.stringify(bookings, null, 2), 'utf8');
@@ -915,8 +938,10 @@ module.exports = {
   users,
   tours,
   bookings,
+  blogs,
   vouchers,
   saveUsers,
   saveTours,
-  saveBookings
+  saveBookings,
+  saveBlogs
 };

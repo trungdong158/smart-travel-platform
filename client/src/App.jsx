@@ -20,6 +20,7 @@ const TourDetailPage = lazy(() => import('./pages/TourDetailPage'));
 const WishlistPage = lazy(() => import('./pages/WishlistPage'));
 const CustomerBookingsPage = lazy(() => import('./pages/CustomerBookingsPage'));
 const CustomerProfilePage = lazy(() => import('./pages/CustomerProfilePage'));
+const BlogPage = lazy(() => import('./pages/BlogPage'));
 const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
@@ -76,6 +77,7 @@ function MainApp() {
                 path="/tours/:id" 
                 element={<TourDetailPage tours={tours} onBookingCreated={refreshTours} />} 
               />
+              <Route path="/blog" element={<BlogPage tours={tours} />} />
               <Route path="/wishlist" element={<WishlistPage tours={tours} />} />
               <Route path="/my-bookings" element={<CustomerBookingsPage />} />
               <Route path="/profile" element={<CustomerProfilePage />} />

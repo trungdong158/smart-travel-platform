@@ -146,3 +146,35 @@ export const userService = {
     return res.data;
   },
 };
+
+// 5. Dịch vụ Nhật Ký Du Lịch & Blog Trải Nghiệm (Blog Service)
+export const blogService = {
+  getAllBlogs: async (params = {}) => {
+    const res = await apiClient.get('/blogs', { params });
+    return res.data;
+  },
+  getBlogById: async (id) => {
+    const res = await apiClient.get(`/blogs/${id}`);
+    return res.data.data || res.data;
+  },
+  createBlog: async (blogData) => {
+    const res = await apiClient.post('/blogs', blogData);
+    return res.data;
+  },
+  addComment: async (blogId, commentData) => {
+    const res = await apiClient.post(`/blogs/${blogId}/comments`, commentData);
+    return res.data;
+  },
+  toggleLike: async (blogId, data = {}) => {
+    const res = await apiClient.post(`/blogs/${blogId}/like`, data);
+    return res.data;
+  },
+  getMyBlogs: async () => {
+    const res = await apiClient.get('/blogs/user/me');
+    return res.data.data || res.data;
+  },
+  deleteBlog: async (id) => {
+    const res = await apiClient.delete(`/blogs/${id}`);
+    return res.data;
+  },
+};

@@ -1,0 +1,306 @@
+[
+  {
+    "id": 1,
+    "title": "Chạm vào biển mây Fansipan - Chuyến đi chữa lành kỳ diệu sau những ngày kiệt sức",
+    "content": "Có những ngày ở phố thị ồn ào đến mức mình chỉ muốn biến mất một thời gian. Quyết định xách balo lên Sa Pa vào một sáng thứ Sáu là quyết định đúng đắn nhất tháng này. Khi tàu hỏa leo núi Mường Hoa lướt qua thung lũng, rồi cabin cáp treo xuyên qua tầng mây trắng bồng bềnh, cảm giác cả cơ thể như được thanh lọc. Lên đến đỉnh Fansipan 3.143m lúc 10h sáng, gió lạnh buốt táp vào mặt nhưng mặt trời rực rỡ chiếu qua biển mây tầng tầng lớp lớp. Tự tay chạm vào chóp kim loại inox, đứng giữa đất trời Tây Bắc hùng vĩ, mình bỗng nhận ra những lo âu hàng ngày thật nhỏ bé. Buổi tối về bản Cát Cát, ngồi bên bếp lửa nướng ngô và nhấp ngụm trà táo mèo ấm nồng, lòng thấy bình yên đến lạ.",
+    "location": "Sa Pa, Lào Cai",
+    "mood": "healing",
+    "moodLabel": "Chữa Lành & Tĩnh Tại",
+    "author": {
+      "id": 1793896592272,
+      "name": "Ngô Thuận Dương",
+      "email": "thuanduowgg@gmail.com",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+      "role": "CUSTOMER"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80"
+    ],
+    "tourId": 3,
+    "tour": {
+      "id": 3,
+      "title": "Chinh Phục Nóc Nhà Đông Dương: Fansipan - Sa Pa - Bản Cát Cát",
+      "base_price": 2950000,
+      "duration_days": 3,
+      "destination_name": "Sa Pa, Lào Cai",
+      "featured_image": "https://images.unsplash.com/photo-1570366583862-f91883984fde?auto=format&fit=crop&w=1200&q=80",
+      "rating": 4.9
+    },
+    "likes": 24,
+    "likedUserIds": [],
+    "comments": [
+      {
+        "id": 101,
+        "userId": 1,
+        "userName": "Lê Phan Trung Đông",
+        "userAvatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80",
+        "content": "Ảnh biển mây đẹp nghẹt thở luôn bạn ơi! Mình cũng đang tính đi Sa Pa cuối tuần tới, đi cáp treo có bị say độ cao không bạn?",
+        "createdAt": "2026-11-08T14:20:00.000Z"
+      },
+      {
+        "id": 102,
+        "userId": 1793896592272,
+        "userName": "Ngô Thuận Dương",
+        "userAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+        "content": "Không say đâu bạn ơi, cáp treo đi êm ru à, chỉ cần mang theo áo ấm và khăn quàng vì trên đỉnh gió khá to nhé!",
+        "createdAt": "2026-11-08T15:05:00.000Z"
+      }
+    ],
+    "createdAt": "2026-11-08T09:30:00.000Z"
+  },
+  {
+    "id": 2,
+    "title": "Phố cổ Hội An dưới cơn mưa rào bất chợt: Kỷ niệm ướt nhẹp nhưng ấm áp tình người",
+    "content": "Hội An ngày nắng đẹp rực rỡ với giàn hoa giấy hồng phấn, nhưng Hội An trong một chiều mưa dông bất chợt lại mang một phong vị hoàn toàn khác. Khi cơn mưa dông ập đến, mình vội tạt vào một hiên nhà cổ trên đường Trần Phú. Bác chủ tiệm may áo dài nở nụ cười hiền hậu, pha ngay một tách trà sả gừng nóng mời mình và vài du khách ngoại quốc lạ mặt cùng trú mưa. Chúng mình ngồi nghe tiếng mưa rơi rả rích trên mái ngói âm dương rêu phong, ngắm những chiếc đèn lồng phản chiếu lung linh trên mặt đường ướt sũng. Cơn mưa tạnh, bầu trời hửng nắng vàng ươm và sông Hoài bảng lảng khói sương. Một trải nghiệm không có trong lịch trình nhưng lại là ký ức sâu đậm nhất của cả chuyến đi.",
+    "location": "Hội An, Quảng Nam",
+    "mood": "romance",
+    "moodLabel": "Lãng Mạn & Hoài Niệm",
+    "author": {
+      "id": 2,
+      "name": "Trần Thanh Huy",
+      "email": "thanhhuy@gmail.com",
+      "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+      "role": "CUSTOMER"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?auto=format&fit=crop&w=800&q=80"
+    ],
+    "tourId": 1,
+    "tour": {
+      "id": 1,
+      "title": "Khám Phá Di Sản Miền Trung: Đà Nẵng - Hội An - Bà Nà Hills",
+      "base_price": 5290000,
+      "duration_days": 4,
+      "destination_name": "Đà Nẵng",
+      "featured_image": "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&w=1200&q=80",
+      "rating": 4.9
+    },
+    "likes": 38,
+    "likedUserIds": [],
+    "comments": [
+      {
+        "id": 103,
+        "userId": 3,
+        "userName": "Đặng Quốc Vương",
+        "userAvatar": "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=200&q=80",
+        "content": "Đúng là nét mộc mạc của người miền Trung! Đọc bài của bạn làm mình nhớ Hội An da diết, nhớ cả vị cao lầu ngõ nhỏ.",
+        "createdAt": "2026-11-07T16:30:00.000Z"
+      }
+    ],
+    "createdAt": "2026-11-07T11:15:00.000Z"
+  },
+  {
+    "id": 3,
+    "title": "Hoàng hôn Sunset Town Phú Quốc - Khi bầu trời hóa thành bức tranh màu tím hồng",
+    "content": "Đã đi nhiều bãi biển, nhưng khoảnh khắc ngắm hoàng hôn tại Thị trấn Hoàng Hôn (Sunset Town) Phú Quốc thực sự khiến mình xúc động đến lặng người. Những bậc thang đá kiểu Địa Trung Hải hướng thẳng ra biển mở, cây Cầu Hôn sừng sững giữa làn sóng biếc. Khi mặt trời đỏ ối dần chìm xuống đường chân trời, cả bầu trời chuyển từ cam vàng sang tím hồng huyền ảo. Mình ngồi ở một quán cà phê bên triền dốc, gió biển thổi lồng lộng mát rượi. Đêm xuống, show diễn đa phương tiện Kiss of The Sea với pháo hoa rực sáng cả vịnh biển. Một chuyến đi nạp đầy năng lượng tươi mới cho tâm hồn!",
+    "location": "Phú Quốc, Kiên Giang",
+    "mood": "chill",
+    "moodLabel": "Nghỉ Dưỡng & Chill Out",
+    "author": {
+      "id": 4,
+      "name": "Nguyễn Quốc Đạt",
+      "email": "quocdat@gmail.com",
+      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+      "role": "CUSTOMER"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80"
+    ],
+    "tourId": 2,
+    "tour": {
+      "id": 2,
+      "title": "Tour Nghỉ Dưỡng Thiên Đường Biển Đảo Phú Quốc - Sunset Town",
+      "base_price": 5490000,
+      "duration_days": 3,
+      "destination_name": "Phú Quốc, Kiên Giang",
+      "featured_image": "https://images.unsplash.com/photo-1589394815804-964ed0be2eb5?auto=format&fit=crop&w=1200&q=80",
+      "rating": 4.8
+    },
+    "likes": 42,
+    "likedUserIds": [],
+    "comments": [
+      {
+        "id": 104,
+        "userId": 2,
+        "userName": "Trần Thanh Huy",
+        "userAvatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+        "content": "Phú Quốc đi mùa này biển êm và nước trong vắt luôn đó! Nút xem tour tiện quá, mình vừa bấm vào xem thử giá mềm ghê.",
+        "createdAt": "2026-11-06T18:45:00.000Z"
+      }
+    ],
+    "createdAt": "2026-11-06T14:10:00.000Z"
+  },
+  {
+    "id": 4,
+    "title": "Hành trình vượt dốc đèo Mã Pí Lèng: Đứng trước hẻm Tu Sản mới thấy tim mình đập rộn ràng",
+    "content": "Đoạn đường từ Đồng Văn sang Mèo Vạc qua đèo Mã Pí Lèng dài chỉ hai chục cây số nhưng khiến cả nhóm thót tim không biết bao nhiêu lần. Một bên là vách núi đá tai mèo dựng đứng, một bên là vực sâu hun hút với dòng sông Nho Quế màu xanh ngọc bích uốn lượn bên dưới. Khi ngồi trên chiếc thuyền máy lướt giữa lòng hẻm vực sâu nhất Đông Nam Á, ngước nhìn lên vách đá khổng lồ cao hàng trăm mét, cảm giác con người thật nhỏ bé trước mẹ thiên nhiên. Chuyến đi này có những lúc mệt lả vì say xe và đường dốc, nhưng khi chạm đến Cột Cờ Lũng Cú nhìn lá cờ đỏ sao vàng tung bay trong gió, niềm tự hào dân tộc dâng trào.",
+    "location": "Hà Giang",
+    "mood": "adventure",
+    "moodLabel": "Phiêu Lưu & Khám Phá",
+    "author": {
+      "id": 3,
+      "name": "Đặng Quốc Vương",
+      "email": "quocvuong@gmail.com",
+      "avatar": "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=400&q=80",
+      "role": "CUSTOMER"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=800&q=80"
+    ],
+    "tourId": 4,
+    "tour": {
+      "id": 4,
+      "title": "Hùng Vĩ Cao Nguyên Đá: Hà Giang - Cột Cờ Lũng Cú - Hẻm Tu Sản",
+      "base_price": 3650000,
+      "duration_days": 4,
+      "destination_name": "Hà Giang",
+      "featured_image": "https://images.unsplash.com/photo-1670654534716-91f59fe06a26?auto=format&fit=crop&w=1200&q=80",
+      "rating": 5
+    },
+    "likes": 56,
+    "likedUserIds": [],
+    "comments": [
+      {
+        "id": 105,
+        "userId": 1,
+        "userName": "Lê Phan Trung Đông",
+        "userAvatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80",
+        "content": "Chuyến đi trong mơ của tuổi trẻ! Đoạn xuống bến thuyền Nho Quế bậc thang dốc dữ dội lắm đúng không bác?",
+        "createdAt": "2026-11-05T20:10:00.000Z"
+      }
+    ],
+    "createdAt": "2026-11-05T16:20:00.000Z"
+  },
+  {
+    "id": 5,
+    "title": "Lênh đênh Chợ nổi Cái Răng lúc 5 giờ sáng: Nét mộc mạc và tô bún riêu trên sông",
+    "content": "5 giờ sáng khi trời Cần Thơ còn tờ mờ sương, chiếc ghe gỗ nổ máy xình xịch đưa chúng mình rời bến Ninh Kiều ra chợ nổi Cái Răng. Càng đến gần chợ, khung cảnh càng nhộn nhịp với hàng trăm ghe xuồng chở đầy dưa hấu, khóm, xoài, thanh long. Điều thú vị nhất là cây bẹo – treo thứ gì trên ngọn tre là bán thứ đó. Một cô lái chiếc ghe nhỏ tấp sát mạn thuyền mình, trao tay tô bún riêu cua bốc khói nghi ngút và ly cà phê sữa đá thơm lừng. Ngồi bồng bềnh trên sóng nước, húp một muỗng nước dùng ngọt thanh vị tôm cá đồng bằng, nghe tiếng cười nói giòn tan của người miền Tây mà ấm cả lòng.",
+    "location": "Cần Thơ - Miền Tây",
+    "mood": "culture",
+    "moodLabel": "Văn Hóa & Bản Sắc",
+    "author": {
+      "id": 1793896592272,
+      "name": "Ngô Thuận Dương",
+      "email": "thuanduowgg@gmail.com",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+      "role": "CUSTOMER"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "tourId": 5,
+    "tour": {
+      "id": 5,
+      "title": "Hành Trình Về Miền Tây Sông Nước: Cần Thơ - Chợ Nổi Cái Răng - An Giang",
+      "base_price": 1950000,
+      "duration_days": 2,
+      "destination_name": "Cần Thơ",
+      "featured_image": "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80",
+      "rating": 4.7
+    },
+    "likes": 31,
+    "likedUserIds": [],
+    "comments": [],
+    "createdAt": "2026-11-04T10:00:00.000Z"
+  },
+  {
+    "id": 6,
+    "title": "Cố đô Huế một chiều thu: Đầm Lập An tĩnh lặng và khúc nhã nhạc vương vấn",
+    "content": "Huế luôn có một ma lực kỳ lạ khiến người ta đi chậm lại, nói khẽ hơn và thở sâu hơn. Điểm chạm sâu sắc nhất trong chuyến đi cố đô lần này của mình là đầm Lập An vào buổi xế chiều. Mặt nước phẳng lặng như tấm gương khổng lồ soi bóng rặng núi Bạch Mã mờ sương, phía xa xa là những chiếc cọc cắm rào nuôi hàu cô đơn giữa mênh mông. Buổi tối, mình ngồi thuyền rồng trôi xuôi dòng sông Hương, lắng nghe điệu Nam ai, Nam bình da diết giữa tiếng đàn bầu, đàn tranh réo rắt. Thả một chiếc đèn hoa đăng mang theo lời nguyện ước cho gia đình, nhìn đốm lửa trôi xa dần trong đêm tĩnh mịch, lòng nhẹ nhõm không ngờ.",
+    "location": "Thừa Thiên Huế",
+    "mood": "healing",
+    "moodLabel": "Chữa Lành & Tĩnh Tại",
+    "author": {
+      "id": 1,
+      "name": "Lê Phan Trung Đông",
+      "email": "trungdongtd123@gmail.com",
+      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+      "role": "CUSTOMER"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1583417319070-4a69db38a482?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "tourId": 6,
+    "tour": {
+      "id": 6,
+      "title": "Di Sản Cố Đô Ngàn Năm: Cố Đô Huế - Đầm Lập An - Vịnh Lăng Cô",
+      "base_price": 4490000,
+      "duration_days": 3,
+      "destination_name": "Thừa Thiên Huế",
+      "featured_image": "https://upload.wikimedia.org/wikipedia/commons/0/0e/Ngo_Mon.jpg",
+      "rating": 4.8
+    },
+    "likes": 29,
+    "likedUserIds": [],
+    "comments": [],
+    "createdAt": "2026-11-03T15:45:00.000Z"
+  },
+  {
+    "id": 7,
+    "title": "Đêm ngủ trên du thuyền Vịnh Hạ Long: Ngắm nghìn hòn đảo đá vôi ngủ say dưới bầu trời sao",
+    "content": "Trải nghiệm ngủ đêm giữa vịnh Hạ Long là điều ai cũng nên thử một lần trong đời. Khi du thuyền thả neo ở khu vực yên tĩnh gần hang Trống, tắt hết động cơ, cả vịnh biển chìm vào tĩnh mịch tuyệt đối. Mình nằm trên sundeck tầng thượng, ngắm hàng ngàn vì sao lấp lánh và bóng đen uy nghi của các đảo đá vôi nhấp nhô trên mặt nước biếc. Sáng sớm hôm sau thức dậy lúc 5h30 tập thái cực quyền đón bình minh, rồi chèo thuyền kayak len lỏi qua hang Luồn ngắm bầy khỉ hoang chuyền cành. Một cảm giác kết nối tuyệt vời với kỳ quan thiên nhiên thế giới.",
+    "location": "Vịnh Hạ Long, Quảng Ninh",
+    "mood": "chill",
+    "moodLabel": "Nghỉ Dưỡng & Chill Out",
+    "author": {
+      "id": 4,
+      "name": "Nguyễn Quốc Đạt",
+      "email": "quocdat@gmail.com",
+      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+      "role": "CUSTOMER"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "tourId": 7,
+    "tour": {
+      "id": 7,
+      "title": "Kỳ Quan Thiên Nhiên Thế Giới: Vịnh Hạ Long - Đảo Titop - Hang Sửng Sốt",
+      "base_price": 3250000,
+      "duration_days": 2,
+      "destination_name": "Hạ Long, Quảng Ninh",
+      "featured_image": "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1200&q=80",
+      "rating": 4.9
+    },
+    "likes": 45,
+    "likedUserIds": [],
+    "comments": [],
+    "createdAt": "2026-11-02T08:30:00.000Z"
+  },
+  {
+    "id": 8,
+    "title": "Quy Nhơn - Phú Yên: Con đường ven biển Kỳ Co và khúc ca gió lộng Eo Gió",
+    "content": "Nếu có ai hỏi mình cung đường biển nào làm tim mình xao xuyến nhất miền Trung, câu trả lời chắc chắn là Kỳ Co - Eo Gió. Eo Gió đón chúng mình bằng những cơn gió đại dương cuồn cuộn lồng lộng, con đường đi bộ ven sườn núi với lan can đỏ trắng uốn lượn ôm lấy bờ vực đá hùng vĩ. Nước biển Kỳ Co thì xanh ngăn ngắt như pha ngọc bích, cát trắng mịn màng. Trưa về làng chài Nhơn Lý thưởng thức ốc vú nàng, nhum nướng mỡ hành thơm nức mũi với giá cực kỳ bình dân. Một chuyến đi tràn đầy vitamin sea và tiếng cười cùng hội bạn thân!",
+    "location": "Quy Nhơn - Phú Yên",
+    "mood": "adventure",
+    "moodLabel": "Phiêu Lưu & Khám Phá",
+    "author": {
+      "id": 2,
+      "name": "Trần Thanh Huy",
+      "email": "thanhhuy@gmail.com",
+      "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+      "role": "CUSTOMER"
+    },
+    "images": [
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "tourId": 8,
+    "tour": {
+      "id": 8,
+      "title": "Xứ Sở Hoa Vàng Trên Cỏ Xanh: Quy Nhơn - Phú Yên - Kỳ Co - Eo Gió",
+      "base_price": 5190000,
+      "duration_days": 4,
+      "destination_name": "Quy Nhơn - Phú Yên",
+      "featured_image": "https://images.unsplash.com/photo-1668536495655-a0226ed8eb5d?auto=format&fit=crop&w=1200&q=80",
+      "rating": 4.9
+    },
+    "likes": 36,
+    "likedUserIds": [],
+    "comments": [],
+    "createdAt": "2026-11-01T14:00:00.000Z"
+  }
+]

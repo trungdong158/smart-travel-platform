@@ -1,13 +1,17 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { 
   User, Mail, Phone, ShieldCheck, CheckCircle2, 
   Camera, Upload, Link as LinkIcon, Sparkles, 
-  Trash2, X, Check, Eye
+  Trash2, X, Check, Eye, BookOpen, Heart, 
+  MessageCircle, MapPin, Calendar, ArrowRight, Plus, 
+  Loader2
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { authService } from '../services/api';
+import { authService, blogService } from '../services/api';
 import PasswordInput from '../components/PasswordInput';
+import ConfirmModal from '../components/ConfirmModal';
 import { validatePhoneNumber } from '../utils/validation';
 
 // Bộ sưu tập avatar du lịch phong cách tuyển chọn
@@ -94,6 +98,16 @@ export default function CustomerProfilePage() {
   const { currentUser, updateProfile, openAuthModal, isAuthenticated } = useAuth();
   const { showToast } = useToast();
 
+  // State Tabs: 'profile' (Hồ sơ & Bảo mật) | 'my_blogs' (Bài viết của tôi)
+  const [activeTab, setActiveTab] = useState('profile');
+
+  // State danh sách bài viết của người dùng
+  const [myBlogs, setMyBlogs] = useState([]);
+  const [isLoadingBlogs, setIsLoadingBlogs] = useState(false);
+  const [blogToDelete, setBlogToDelete] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeletingBlog, setIsDeletingBlog] = useState(false);
+
   // State thông tin cá nhân
   const [fullName, setFullName] = useState(currentUser?.fullName || '');
   const [phone, setPhone] = useState(currentUser?.phone || '');
@@ -127,6 +141,104 @@ export default function CustomerProfilePage() {
   const [customUrl, setCustomUrl] = useState('');
   const [isSavingAvatar, setIsSavingAvatar] = useState(false);
   const fileInputRef = useRef(null);
+
+  // Hàm làm mới danh sách bài viết do người dùng đăng
+  const fetchMyBlogs = useCallback(async () => {
+    if (!isAuthenticated) return;
+    setIsLoadingBlogs(true);
+    try {
+      const res = await blogService.getMyBlogs();
+      if (res && res.data) {
+        setMyBlogs(res.data);
+      } else if (Array.isArray(res)) {
+        setMyBlogs(res);
+      } else {
+        setMyBlogs([]);
+      }
+    } catch (err) {
+      console.warn('Lỗi khi tải bài viết cá nhân:', err);
+      try {
+        const allRes = await blogService.getAllBlogs({ limit: 100 });
+        if (allRes && allRes.data) {
+          const userBlogs = allRes.data.filter(b => 
+            b.author && (
+              String(b.author.id) === String(currentUser?.id) ||
+              (b.author.email && b.author.email.toLowerCase() === (currentUser?.email || '').toLowerCase())
+            )
+          );
+          setMyBlogs(userBlogs);
+        }
+      } catch {
+        // Fallback im lặng
+      }
+    } finally {
+      setIsLoadingBlogs(false);
+    }
+  }, [isAuthenticated, currentUser]);
+
+  // Tải dữ liệu ban đầu
+  useEffect(() => {
+    let active = true;
+    if (isAuthenticated) {
+      const loadData = async () => {
+        try {
+          const res = await blogService.getMyBlogs();
+          if (!active) return;
+          if (res && res.data) {
+            setMyBlogs(res.data);
+          } else if (Array.isArray(res)) {
+            setMyBlogs(res);
+          }
+        } catch {
+          try {
+            const allRes = await blogService.getAllBlogs({ limit: 100 });
+            if (!active) return;
+            if (allRes && allRes.data) {
+              const userBlogs = allRes.data.filter(b => 
+                b.author && (
+                  String(b.author.id) === String(currentUser?.id) ||
+                  (b.author.email && b.author.email.toLowerCase() === (currentUser?.email || '').toLowerCase())
+                )
+              );
+              setMyBlogs(userBlogs);
+            }
+          } catch {
+            // im lặng
+          }
+        } finally {
+          if (active) {
+            setIsLoadingBlogs(false);
+          }
+        }
+      };
+      loadData();
+    }
+    return () => {
+      active = false;
+    };
+  }, [isAuthenticated, currentUser]);
+
+  // Xóa bài viết cá nhân
+  const handleDeleteBlog = (blog) => {
+    setBlogToDelete(blog);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDeleteBlog = async () => {
+    if (!blogToDelete) return;
+    setIsDeletingBlog(true);
+    try {
+      await blogService.deleteBlog(blogToDelete.id);
+      showToast('Đã xóa bài viết thành công!', 'success');
+      setMyBlogs(prev => prev.filter(b => b.id !== blogToDelete.id));
+      setIsDeleteModalOpen(false);
+      setBlogToDelete(null);
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Không thể xóa bài viết!', 'error');
+    } finally {
+      setIsDeletingBlog(false);
+    }
+  };
 
   if (!isAuthenticated) {
     return (
@@ -289,13 +401,56 @@ export default function CustomerProfilePage() {
           <User className="w-4 h-4 text-sky-600 dark:text-sky-400" />
           Tài Khoản Thành Viên
         </span>
-        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-1">Thông Tin Cá Nhân</h1>
+        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-1">
+          {activeTab === 'profile' ? 'Thông Tin Cá Nhân' : 'Bài Viết Trải Nghiệm'}
+        </h1>
         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-          Quản lý thông tin liên hệ, ảnh đại diện và cài đặt bảo mật cho tài khoản của bạn
+          {activeTab === 'profile' 
+            ? 'Quản lý thông tin liên hệ, ảnh đại diện và cài đặt bảo mật cho tài khoản của bạn'
+            : 'Xem và quản lý các câu chuyện du lịch, cảm xúc và kỷ niệm bạn đã chia sẻ cùng cộng đồng'}
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {/* Tabs chuyển đổi giữa Hồ Sơ & Bài Viết Của Tôi */}
+      <div className="flex items-center gap-2 border-b border-slate-200/80 dark:border-slate-800">
+        <button
+          type="button"
+          onClick={() => setActiveTab('profile')}
+          className={`flex items-center gap-2 px-5 py-3 text-xs sm:text-sm font-bold border-b-2 transition -mb-px ${
+            activeTab === 'profile'
+              ? 'border-sky-600 text-sky-600 dark:border-sky-400 dark:text-sky-400'
+              : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
+          }`}
+        >
+          <User className="w-4 h-4" />
+          <span>Hồ Sơ & Bảo Mật</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setActiveTab('my_blogs');
+            fetchMyBlogs();
+          }}
+          className={`flex items-center gap-2 px-5 py-3 text-xs sm:text-sm font-bold border-b-2 transition -mb-px ${
+            activeTab === 'my_blogs'
+              ? 'border-sky-600 text-sky-600 dark:border-sky-400 dark:text-sky-400'
+              : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
+          }`}
+        >
+          <BookOpen className="w-4 h-4" />
+          <span>Bài Viết Của Tôi</span>
+          {myBlogs.length > 0 && (
+            <span className="ml-1 px-2 py-0.5 text-[10px] font-black rounded-full bg-sky-100 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300">
+              {myBlogs.length}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {/* TAB 1: THÔNG TIN HỒ SƠ & BẢO MẬT */}
+      {activeTab === 'profile' && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         
         {/* Cột trái: Tóm tắt thông tin tài khoản & Ảnh đại diện */}
         <div className="md:col-span-1 space-y-6">
@@ -376,6 +531,28 @@ export default function CustomerProfilePage() {
                 <CheckCircle2 className="w-4 h-4 text-sky-600 dark:text-sky-400" />
                 <span>Quyền đặt tour trực tuyến</span>
               </div>
+            </div>
+
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab('my_blogs');
+                  fetchMyBlogs();
+                }}
+                className="w-full flex items-center justify-between p-3 rounded-2xl bg-sky-50/60 dark:bg-sky-950/40 hover:bg-sky-100 dark:hover:bg-sky-900/50 border border-sky-100 dark:border-sky-800/60 group transition text-left"
+              >
+                <div className="flex items-center gap-2 text-xs font-bold text-sky-900 dark:text-sky-200">
+                  <BookOpen className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+                  <span>Bài Viết Của Tôi</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-black px-2 py-0.5 rounded-full bg-sky-200/80 dark:bg-sky-800 text-sky-800 dark:text-sky-200">
+                    {myBlogs.length}
+                  </span>
+                  <ArrowRight className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 group-hover:translate-x-0.5 transition" />
+                </div>
+              </button>
             </div>
           </div>
         </div>
@@ -526,6 +703,209 @@ export default function CustomerProfilePage() {
         </div>
 
       </div>
+      )}
+
+      {/* TAB 2: BÀI VIẾT CỦA TÔI */}
+      {activeTab === 'my_blogs' && (
+        <div className="space-y-6">
+          {/* Header thanh công cụ quản lý bài viết */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 sm:p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-sm">
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-black text-slate-900 dark:text-white">
+                  Bài Viết Trải Nghiệm Của Tôi
+                </h2>
+                <span className="px-2.5 py-0.5 text-xs font-bold rounded-full bg-sky-100 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300">
+                  {myBlogs.length} bài viết
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                Lưu giữ những xúc cảm chân thực, kỷ niệm vui buồn và đánh giá điểm đến trong mỗi chuyến đi
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <Link
+                to="/blog"
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold bg-sky-600 hover:bg-sky-700 text-white shadow-md shadow-sky-600/20 transition active:scale-95"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Viết Bài Mới</span>
+              </Link>
+            </div>
+          </div>
+
+          {/* Trạng thái đang tải */}
+          {isLoadingBlogs && (
+            <div className="py-16 text-center space-y-3 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-sm">
+              <Loader2 className="w-8 h-8 text-sky-600 animate-spin mx-auto" />
+              <p className="text-xs text-slate-500 dark:text-slate-400">Đang tải danh sách bài viết của bạn...</p>
+            </div>
+          )}
+
+          {/* Trạng thái chưa có bài viết */}
+          {!isLoadingBlogs && myBlogs.length === 0 && (
+            <div className="p-12 text-center space-y-4 bg-white dark:bg-slate-900 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800 shadow-sm">
+              <div className="w-16 h-16 rounded-3xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center mx-auto">
+                <BookOpen className="w-8 h-8" />
+              </div>
+              <div className="space-y-1 max-w-sm mx-auto">
+                <h3 className="text-base font-black text-slate-900 dark:text-white">
+                  Bạn chưa đăng bài viết nào
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                  Mỗi chuyến đi đều có những khoảnh khắc đáng nhớ. Hãy chia sẻ trải nghiệm và cảm xúc của bạn lên SoulTrip Blog nhé!
+                </p>
+              </div>
+              <Link
+                to="/blog"
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold bg-sky-600 hover:bg-sky-700 text-white shadow-md shadow-sky-600/20 transition active:scale-95"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Chia Sẻ Bài Viết Đầu Tiên</span>
+              </Link>
+            </div>
+          )}
+
+          {/* Danh sách bài viết */}
+          {!isLoadingBlogs && myBlogs.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {myBlogs.map((blog) => {
+                const cover = (blog.images && blog.images[0]) || 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80';
+                const createdDate = blog.createdAt ? new Date(blog.createdAt).toLocaleDateString('vi-VN', {
+                  day: '2-digit', month: '2-digit', year: 'numeric'
+                }) : '';
+
+                return (
+                  <div
+                    key={blog.id}
+                    className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col hover:shadow-md transition-all duration-300 group"
+                  >
+                    {/* Ảnh bài viết & Mood Badge */}
+                    <div className="relative aspect-[16/9] overflow-hidden bg-slate-100 dark:bg-slate-800">
+                      <img
+                        src={cover}
+                        alt={blog.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-black/20 pointer-events-none" />
+
+                      {/* Badge Tâm trạng */}
+                      <div className="absolute top-3 left-3">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-white/90 dark:bg-slate-900/90 backdrop-blur-md text-slate-800 dark:text-slate-100 shadow-sm">
+                          <span>✨</span>
+                          <span>{blog.moodLabel || 'Trải Nghiệm Du Lịch'}</span>
+                        </span>
+                      </div>
+
+                      {/* Location pill */}
+                      {blog.location && (
+                        <div className="absolute bottom-3 left-3">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-medium bg-slate-900/70 backdrop-blur-md text-white">
+                            <MapPin className="w-3 h-3 text-sky-400" />
+                            <span>{blog.location}</span>
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Số lượng ảnh nếu > 1 */}
+                      {blog.images && blog.images.length > 1 && (
+                        <div className="absolute top-3 right-3 px-2 py-0.5 rounded-lg bg-slate-900/70 text-white text-[10px] font-bold">
+                          +{blog.images.length - 1} ảnh
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Nội dung bài viết */}
+                    <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-[11px] text-slate-400 dark:text-slate-500">
+                          <Calendar className="w-3.5 h-3.5" />
+                          <span>Đã đăng: {createdDate}</span>
+                        </div>
+
+                        <h3 className="font-extrabold text-base text-slate-900 dark:text-white line-clamp-2 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition">
+                          {blog.title}
+                        </h3>
+
+                        <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-3 leading-relaxed">
+                          {blog.content}
+                        </p>
+                      </div>
+
+                      {/* Thẻ Tour gắn kèm nếu có */}
+                      {blog.tour && (
+                        <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            {blog.tour.featured_image && (
+                              <img
+                                src={blog.tour.featured_image}
+                                alt={blog.tour.title}
+                                className="w-10 h-10 rounded-xl object-cover shrink-0"
+                              />
+                            )}
+                            <div className="min-w-0">
+                              <span className="text-[10px] font-bold text-sky-600 dark:text-sky-400 uppercase tracking-wider block">
+                                Gắn thẻ chuyến đi
+                              </span>
+                              <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
+                                {blog.tour.title}
+                              </h4>
+                            </div>
+                          </div>
+
+                          <Link
+                            to={`/tours/${blog.tour.id}`}
+                            className="shrink-0 px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-[11px] font-bold transition flex items-center gap-1 shadow-sm"
+                          >
+                            <span>Xem Tour</span>
+                            <ArrowRight className="w-3 h-3" />
+                          </Link>
+                        </div>
+                      )}
+
+                      {/* Thống kê tương tác & Nút thao tác */}
+                      <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                        <div className="flex items-center gap-4 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                          <span className="inline-flex items-center gap-1">
+                            <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
+                            <span>{blog.likes || 0}</span>
+                          </span>
+                          <span className="inline-flex items-center gap-1">
+                            <MessageCircle className="w-3.5 h-3.5 text-sky-500" />
+                            <span>{blog.comments ? blog.comments.length : 0}</span>
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <Link
+                            to="/blog"
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950/50 transition"
+                          >
+                            <span>Xem trên Blog</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </Link>
+
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteBlog(blog)}
+                            className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition"
+                            title="Xóa bài viết"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* MODAL CHỌN & CẬP NHẬT ẢNH ĐẠI DIỆN */}
       {isAvatarModalOpen && (
@@ -780,6 +1160,23 @@ export default function CustomerProfilePage() {
           </div>
         </div>
       )}
+
+      {/* MODAL XÁC NHẬN XÓA BÀI VIẾT */}
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        title="Xác nhận xóa bài viết"
+        message={`Bạn có chắc chắn muốn xóa bài viết "${blogToDelete?.title || ''}"? Bài viết sẽ bị gỡ vĩnh viễn khỏi SoulTrip.`}
+        confirmText={isDeletingBlog ? 'Đang xóa...' : 'Xóa bài viết'}
+        cancelText="Hủy bỏ"
+        isDanger={true}
+        onConfirm={confirmDeleteBlog}
+        onCancel={() => {
+          if (!isDeletingBlog) {
+            setIsDeleteModalOpen(false);
+            setBlogToDelete(null);
+          }
+        }}
+      />
     </div>
   );
 }
