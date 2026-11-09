@@ -399,7 +399,11 @@ export default function BlogPage({ tours = [] }) {
 
       const res = await blogService.createBlog(blogPayload);
       if (res && res.success) {
-        showToast('🎉 Đăng bài viết chia sẻ thành công!', 'success');
+        if (res.data?.status === 'PENDING') {
+          showToast('⏳ Bài viết của bạn đã được gửi và đang chờ Ban Quản Trị phê duyệt!', 'info');
+        } else {
+          showToast('🎉 Đăng bài viết chia sẻ thành công!', 'success');
+        }
         
         // Chèn ngay bài viết mới lên đầu danh sách bài viết hiện tại
         setBlogs((prev) => [res.data, ...prev]);
@@ -572,27 +576,35 @@ export default function BlogPage({ tours = [] }) {
                   <div className="p-5 sm:p-7 pb-3 flex items-start justify-between gap-4">
                     <div className="flex items-center gap-3">
                       <div className="relative">
-                        {blog.author?.avatar ? (
-                          <img 
-                            src={blog.author.avatar} 
-                            alt={blog.author.name}
-                            className="w-11 h-11 rounded-full object-cover ring-2 ring-amber-400/40" 
-                          />
-                        ) : (
-                          <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-amber-400 to-orange-500 flex items-center justify-center text-white font-bold text-base shadow">
-                            {blog.author?.name ? blog.author.name.charAt(0) : 'U'}
-                          </div>
-                        )}
+                        {(() => {
+                          const authorAvatar = (currentUser && (String(currentUser.id) === String(blog.author?.id) || currentUser.email === blog.author?.email) ? currentUser.avatar : null) || blog.author?.avatar || '';
+                          return authorAvatar ? (
+                            <img 
+                              src={authorAvatar} 
+                              alt={blog.author?.name}
+                              className="w-11 h-11 rounded-full object-cover ring-2 ring-amber-400/40" 
+                            />
+                          ) : (
+                            <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-amber-400 to-orange-500 flex items-center justify-center text-white font-bold text-base shadow">
+                              {blog.author?.name ? blog.author.name.charAt(0) : 'U'}
+                            </div>
+                          );
+                        })()}
                       </div>
 
                       <div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <h4 className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white">
                             {blog.author?.name || 'Du Khách SoulTrip'}
                           </h4>
                           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
                             {blog.author?.role === 'ADMIN' ? 'Ban Quản Trị' : 'Thành viên SoulTrip'}
                           </span>
+                          {blog.status === 'PENDING' && (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700 animate-pulse">
+                              ⏳ Đang chờ duyệt
+                            </span>
+                          )}
                         </div>
                         
                         <div className="flex items-center gap-3 text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">

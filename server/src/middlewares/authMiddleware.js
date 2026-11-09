@@ -43,7 +43,30 @@ const requireAdmin = (req, res, next) => {
   next();
 };
 
+/**
+ * Middleware tùy chọn nhận diện user nếu có token (không bắt buộc)
+ */
+const optionalAuth = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    req.user = null;
+    return next();
+  }
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (!err && user) {
+      req.user = user;
+    } else {
+      req.user = null;
+    }
+    next();
+  });
+};
+
 module.exports = {
   authenticateToken,
-  requireAdmin
+  requireAdmin,
+  optionalAuth
 };

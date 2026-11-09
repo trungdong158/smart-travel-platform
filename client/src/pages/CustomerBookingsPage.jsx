@@ -66,6 +66,11 @@ export default function CustomerBookingsPage() {
     if (!selectedBookingId) return;
     try {
       await bookingService.cancelBooking(selectedBookingId);
+      try {
+        localStorage.removeItem(`soultrip_hold_deadline_${selectedBookingId}`);
+      } catch {
+        // ignore
+      }
       showToast('Hủy đơn đặt tour thành công!', 'success');
       setCancelModalOpen(false);
       setSelectedBookingId(null);
@@ -260,7 +265,7 @@ export default function CustomerBookingsPage() {
                   {/* Khi đơn đã bị hủy: không hiện nút thanh toán hay vé, chỉ hiện ghi chú trạng thái */}
                   {b.status === 'CANCELLED' && (
                     <span className="text-[11px] font-medium text-rose-500/90 dark:text-rose-400/90 italic px-2.5 py-1 bg-rose-50 dark:bg-rose-950/30 rounded-xl border border-rose-200/60 dark:border-rose-900/40">
-                      Đơn đã hủy • Không có vé
+                      {b.cancelReason === 'EXPIRED_HOLD' ? 'Đơn đã hủy • Hết thời gian giữ vé' : 'Đơn đã hủy • Không có vé'}
                     </span>
                   )}
                 </div>

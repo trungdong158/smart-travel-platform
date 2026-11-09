@@ -66,7 +66,9 @@ export default function AdminDashboardPage({ tours = [], onTourUpdated }) {
     isOpen: false,
     title: '',
     message: '',
-    type: '', // 'DELETE_TOUR' | 'DELETE_USER'
+    confirmText: '',
+    cancelText: '',
+    type: '', // 'DELETE_TOUR' | 'DELETE_USER' | 'DELETE_BLOG'
     targetId: null
   });
 
@@ -334,10 +336,25 @@ export default function AdminDashboardPage({ tours = [], onTourUpdated }) {
     }
   };
 
-  const handleDeleteBlog = async (blogId) => {
+  const handleDeleteBlogClick = (blogId, blogTitle) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Bạn có chắc muốn xóa bài viết này?',
+      message: blogTitle
+        ? `Bài viết "${blogTitle}" sẽ bị xóa vĩnh viễn khỏi hệ thống.`
+        : 'Bài viết này sẽ bị xóa vĩnh viễn khỏi hệ thống.',
+      confirmText: 'Chắc chắn',
+      cancelText: 'Bỏ qua',
+      type: 'DELETE_BLOG',
+      targetId: blogId
+    });
+  };
+
+  const handleDeleteBlogConfirm = async () => {
     try {
-      await blogService.deleteBlog(blogId);
+      await blogService.deleteBlog(confirmModal.targetId);
       showToast('Đã xóa bài viết thành công!', 'success');
+      setConfirmModal({ isOpen: false, targetId: null });
       refreshAllData();
     } catch (err) {
       showToast(err.response?.data?.message || 'Không thể xóa bài viết!', 'error');
@@ -765,39 +782,69 @@ export default function AdminDashboardPage({ tours = [], onTourUpdated }) {
       {activeTab === 'blogs' && (
         <div className="space-y-6">
           <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-hidden">
-            <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/80 flex items-center justify-between gap-3">
-              <h3 className="text-sm font-black text-slate-900 dark:text-white">Bài viết chờ duyệt</h3>
-              <button
-                type="button"
-                onClick={() => handleToggleBlogApproval(!blogApprovalRequired)}
-                className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors ${
-                  blogApprovalRequired ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'
-                }`}
-                aria-label="Bật/tắt duyệt bài blog"
-                title={blogApprovalRequired ? 'Duyệt bài đang bật' : 'Duyệt bài đang tắt'}
-              >
-                <span
-                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
-                    blogApprovalRequired ? 'translate-x-8' : 'translate-x-1'
+            <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2.5">
+                  <h3 className="text-base font-black text-slate-900 dark:text-white">
+                    Kiểm Duyệt Bài Viết Blog
+                  </h3>
+                  <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                    blogApprovalRequired
+                      ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700'
+                      : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
+                  }`}>
+                    {blogApprovalRequired ? 'Duyệt bài User: ĐANG BẬT' : 'Duyệt bài User: ĐANG TẮT'}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                  Chỉ áp dụng với bài viết của User. Bài viết của Ban Quản Trị (Admin) luôn tự động duyệt ngay mà không cần chờ duyệt.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3 self-end sm:self-center">
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                  {blogApprovalRequired ? 'Bật duyệt bài' : 'Tắt duyệt bài'}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handleToggleBlogApproval(!blogApprovalRequired)}
+                  className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors cursor-pointer shadow-inner ${
+                    blogApprovalRequired ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'
                   }`}
-                />
-              </button>
+                  aria-label="Bật/tắt duyệt bài blog"
+                  title={blogApprovalRequired ? 'Nhấn để tắt chế độ duyệt bài' : 'Nhấn để bật chế độ duyệt bài'}
+                >
+                  <span
+                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                      blogApprovalRequired ? 'translate-x-8' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
             </div>
-            {!blogApprovalRequired && (
-              <div className="px-4 py-3 text-xs text-slate-600 dark:text-slate-300 bg-amber-50 dark:bg-amber-950/30 border-b border-amber-200 dark:border-amber-900">
-                Chế độ duyệt bài đang tắt. Tất cả bài viết mới sẽ tự động hiển thị trên blog.
+
+            {/* Banner trạng thái giải thích chế độ hoạt động */}
+            {blogApprovalRequired ? (
+              <div className="px-5 py-3 text-xs text-emerald-800 dark:text-emerald-300 bg-emerald-50/80 dark:bg-emerald-950/30 border-b border-emerald-200 dark:border-emerald-900/60 flex items-center gap-2">
+                <span className="font-bold">🛡️ Chế độ duyệt đang BẬT:</span>
+                <span>Bài viết mới của User sẽ có trạng thái <b>Chờ duyệt (PENDING)</b> và chỉ hiển thị công khai trên Blog sau khi Admin bấm Duyệt. (Bài viết của Admin luôn hiển thị ngay).</span>
+              </div>
+            ) : (
+              <div className="px-5 py-3 text-xs text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/30 border-b border-amber-200 dark:border-amber-900/60 flex items-center gap-2">
+                <span className="font-bold">⚡ Chế độ duyệt đang TẮT:</span>
+                <span>Bài viết của User sẽ <b>tự động hiển thị ngay lập tức</b> trên trang Blog mà không cần quản trị viên duyệt thủ công.</span>
               </div>
             )}
-            {blogApprovalRequired && (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
                 <thead className="bg-slate-50 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 font-bold border-b border-slate-200 dark:border-slate-800 uppercase tracking-wider">
                   <tr>
-                    <th className="p-4">Tiêu đề</th>
-                    <th className="p-4">Tác giả</th>
+                    <th className="p-4">Tiêu đề bài viết</th>
+                    <th className="p-4">Tác giả (User)</th>
                     <th className="p-4">Địa điểm</th>
-                    <th className="p-4">Ngày đăng</th>
-                    <th className="p-4 text-right">Thao tác</th>
+                    <th className="p-4">Ngày gửi</th>
+                    <th className="p-4 text-right">Thao tác duyệt</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
@@ -807,7 +854,11 @@ export default function AdminDashboardPage({ tours = [], onTourUpdated }) {
                     </tr>
                   ) : pendingBlogs.length === 0 ? (
                     <tr>
-                      <td colSpan="5" className="p-8 text-center text-slate-400 dark:text-slate-500">Không có bài viết nào đang chờ duyệt.</td>
+                      <td colSpan="5" className="p-8 text-center text-slate-400 dark:text-slate-500">
+                        {blogApprovalRequired
+                          ? 'Hiện không có bài viết nào của User đang chờ duyệt.'
+                          : 'Hiện không có bài viết chờ duyệt (Chế độ duyệt bài đang tắt).'}
+                      </td>
                     </tr>
                   ) : (
                     pendingBlogs.map((blog) => (
@@ -825,19 +876,19 @@ export default function AdminDashboardPage({ tours = [], onTourUpdated }) {
                         <td className="p-4 text-right space-x-2 whitespace-nowrap">
                           <button
                             onClick={() => handleApproveBlog(blog.id, 'APPROVED')}
-                            className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-[11px] shadow-sm transition"
+                            className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-[11px] shadow-sm transition cursor-pointer"
                           >
                             Duyệt
                           </button>
                           <button
                             onClick={() => handleApproveBlog(blog.id, 'REJECTED')}
-                            className="px-2.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-bold text-[11px] shadow-sm transition"
+                            className="px-2.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-bold text-[11px] shadow-sm transition cursor-pointer"
                           >
                             Từ chối
                           </button>
                           <button
-                            onClick={() => handleDeleteBlog(blog.id)}
-                            className="px-2.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg font-bold text-[11px] shadow-sm transition"
+                            onClick={() => handleDeleteBlogClick(blog.id, blog.title)}
+                            className="px-2.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg font-bold text-[11px] shadow-sm transition cursor-pointer"
                           >
                             Xóa
                           </button>
@@ -845,15 +896,9 @@ export default function AdminDashboardPage({ tours = [], onTourUpdated }) {
                       </tr>
                     ))
                   )}
-                  </tbody>
-                </table>
-              </div>
-            )}
-            {!blogApprovalRequired && (
-              <div className="p-8 text-center text-slate-400 dark:text-slate-500 text-xs">
-                Chế độ duyệt bài đang tắt nên nội dung blog chờ duyệt không hiển thị ở trang blog công khai.
-              </div>
-            )}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-hidden">
@@ -895,7 +940,7 @@ export default function AdminDashboardPage({ tours = [], onTourUpdated }) {
                         <td className="p-4">{blog.createdAt ? new Date(blog.createdAt).toLocaleDateString('vi-VN') : 'Mới'}</td>
                         <td className="p-4 text-right">
                           <button
-                            onClick={() => handleDeleteBlog(blog.id)}
+                            onClick={() => handleDeleteBlogClick(blog.id, blog.title)}
                             className="px-2.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg font-bold text-[11px] shadow-sm transition"
                           >
                             Xóa blog
@@ -1284,12 +1329,13 @@ export default function AdminDashboardPage({ tours = [], onTourUpdated }) {
         isOpen={confirmModal.isOpen}
         title={confirmModal.title}
         message={confirmModal.message}
-        confirmText="Xác nhận xóa"
-        cancelText="Đóng"
+        confirmText={confirmModal.confirmText || 'Xác nhận xóa'}
+        cancelText={confirmModal.cancelText || 'Đóng'}
         isDanger={true}
         onConfirm={() => {
           if (confirmModal.type === 'DELETE_TOUR') handleDeleteTourConfirm();
           if (confirmModal.type === 'DELETE_USER') handleDeleteUserConfirm();
+          if (confirmModal.type === 'DELETE_BLOG') handleDeleteBlogConfirm();
         }}
         onCancel={() => setConfirmModal({ isOpen: false, targetId: null })}
       />

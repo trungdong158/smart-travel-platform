@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Sparkles, X, Send, Bot, ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { formatVND } from '../utils/format';
 
 export default function SmartConcierge({ tours = [] }) {
@@ -16,6 +16,10 @@ export default function SmartConcierge({ tours = [] }) {
   ]);
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
+  const location = useLocation();
+
+  // Nhận diện nếu đang ở trang chi tiết đặt tour để nâng nút chatbot tránh che nút Đặt Chỗ Ngay
+  const isTourDetailPage = location.pathname.startsWith('/tours/') && location.pathname.split('/').filter(Boolean).length >= 2;
 
   const quickPrompts = [
     '🌿 Cần nơi bình yên để chữa lành',
@@ -166,22 +170,31 @@ export default function SmartConcierge({ tours = [] }) {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 font-sans">
+    <div 
+      className={`fixed z-40 font-sans transition-all duration-300 ease-in-out ${
+        isTourDetailPage 
+          ? 'bottom-[84px] right-3 sm:right-6 lg:bottom-6 lg:right-6' 
+          : 'bottom-6 right-3 sm:right-6'
+      }`}
+    >
       {/* Nút bấm mở Chatbot */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="group flex items-center gap-2.5 px-4 py-3 bg-gradient-to-r from-amber-500 via-orange-500 to-rose-600 text-white rounded-full shadow-2xl hover:shadow-orange-500/40 hover:scale-105 active:scale-95 transition-all duration-300"
+          className="group flex items-center gap-2 px-3.5 py-2.5 sm:px-4 sm:py-3 bg-gradient-to-r from-amber-500 via-orange-500 to-rose-600 text-white rounded-full shadow-2xl hover:shadow-orange-500/40 hover:scale-105 active:scale-95 transition-all duration-300 border border-white/20 cursor-pointer"
           aria-label="Mở Trợ lý AI"
         >
-          <Sparkles className="w-5 h-5 text-amber-200 group-hover:animate-pulse" />
-          <span className="text-xs sm:text-sm font-bold tracking-wide">Travel by Mood AI</span>
+          <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-amber-200 group-hover:animate-pulse shrink-0" />
+          <span className="text-xs sm:text-sm font-bold tracking-wide whitespace-nowrap">
+            <span className="inline min-[380px]:hidden">AI Tư vấn</span>
+            <span className="hidden min-[380px]:inline">Travel by Mood AI</span>
+          </span>
         </button>
       )}
 
       {/* Cửa sổ Chat Concierge */}
       {isOpen && (
-        <div className="w-[340px] sm:w-[400px] h-[530px] bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-300">
+        <div className="w-[calc(100vw-1.5rem)] sm:w-[400px] max-w-[400px] h-[480px] sm:h-[530px] max-h-[calc(100vh-6.5rem)] bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-300">
           
           {/* Header */}
           <div className="p-4 bg-gradient-to-r from-amber-500 via-orange-500 to-rose-600 text-white flex items-center justify-between shadow">

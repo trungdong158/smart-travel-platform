@@ -799,12 +799,26 @@ export default function CustomerProfilePage() {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-black/20 pointer-events-none" />
 
-                      {/* Badge Tâm trạng */}
-                      <div className="absolute top-3 left-3">
+                      {/* Badge Tâm trạng & Trạng thái duyệt */}
+                      <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 items-center">
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-white/90 dark:bg-slate-900/90 backdrop-blur-md text-slate-800 dark:text-slate-100 shadow-sm">
                           <span>✨</span>
                           <span>{blog.moodLabel || 'Trải Nghiệm Du Lịch'}</span>
                         </span>
+
+                        {blog.status === 'PENDING' ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500 text-white shadow-sm animate-pulse">
+                            ⏳ Chờ duyệt
+                          </span>
+                        ) : blog.status === 'REJECTED' ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-500 text-white shadow-sm">
+                            ✗ Bị từ chối
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500 text-white shadow-sm">
+                            ✓ Đã duyệt
+                          </span>
+                        )}
                       </div>
 
                       {/* Location pill */}
@@ -1172,10 +1186,10 @@ export default function CustomerProfilePage() {
       {/* MODAL XÁC NHẬN XÓA BÀI VIẾT */}
       <ConfirmModal
         isOpen={isDeleteModalOpen}
-        title="Xác nhận xóa bài viết"
-        message={`Bạn có chắc chắn muốn xóa bài viết "${blogToDelete?.title || ''}"? Bài viết sẽ bị gỡ vĩnh viễn khỏi SoulTrip.`}
-        confirmText={isDeletingBlog ? 'Đang xóa...' : 'Xóa bài viết'}
-        cancelText="Hủy bỏ"
+        title="Bạn có chắc muốn xóa bài viết này?"
+        message={`Bài viết "${blogToDelete?.title || ''}" sẽ bị xóa vĩnh viễn khỏi hệ thống.`}
+        confirmText={isDeletingBlog ? 'Đang xóa...' : 'Chắc chắn'}
+        cancelText="Bỏ qua"
         isDanger={true}
         onConfirm={confirmDeleteBlog}
         onCancel={() => {

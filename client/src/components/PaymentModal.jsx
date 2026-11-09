@@ -1,12 +1,76 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   X, CheckCircle2, Copy, Check, Clock, QrCode, 
-  Smartphone, Building2, ShieldCheck, ArrowRight, Loader2 
+  Smartphone, Building2, ShieldCheck, ArrowRight, Loader2, AlertTriangle 
 } from 'lucide-react';
 import { formatVND } from '../utils/format';
 import { useToast } from '../context/ToastContext';
 import { bookingService } from '../services/api';
 import QRCodeView from './QRCodeView';
+
+/**
+ * Lấy hoặc khởi tạo mốc thời gian hết hạn giữ vé (15 phút xuyên suốt)
+ * Đảm bảo thời gian không bị reset khi đóng/mở vé hoặc tải lại trang
+ */
+const getHoldDeadline = (targetBooking) => {
+  if (!targetBooking || !targetBooking.id) return null;
+  const storageKey = `soultrip_hold_deadline_${targetBooking.id}`;
+
+  // 1. Ưu tiên mốc thời gian holdExpiresAt chuẩn từ Backend
+  if (targetBooking.holdExpiresAt) {
+    const exp = new Date(targetBooking.holdExpiresAt).getTime();
+    if (!isNaN(exp)) {
+      try {
+        localStorage.setItem(storageKey, String(exp));
+      } catch {
+        // ignore storage errors
+      }
+      return exp;
+    }
+  }
+
+  // 2. Kiểm tra mốc đã được lưu trong localStorage của trình duyệt
+  try {
+    const saved = localStorage.getItem(storageKey);
+    if (saved) {
+      const exp = parseInt(saved, 10);
+      if (!isNaN(exp)) return exp;
+    }
+  } catch {
+    // ignore storage errors
+  }
+
+  // 3. Fallback: 15 phút tính từ thời điểm đặt chỗ (createdAt)
+  if (targetBooking.createdAt) {
+    const createdTime = new Date(targetBooking.createdAt).getTime();
+    if (!isNaN(createdTime)) {
+      const exp = createdTime + 15 * 60 * 1000;
+      try {
+        localStorage.setItem(storageKey, String(exp));
+      } catch {
+        // ignore storage errors
+      }
+      return exp;
+    }
+  }
+
+  // 4. Nếu là đơn mới chưa có mốc nào: gán 15 phút từ bây giờ và lưu cố định
+  const newExp = Date.now() + 15 * 60 * 1000;
+  try {
+    localStorage.setItem(storageKey, String(newExp));
+  } catch {
+    // ignore storage errors
+  }
+  return newExp;
+};
+
+/**
+ * Tính số giây còn lại cho đến mốc hết hạn
+ */
+const calculateRemainingSeconds = (targetDeadline) => {
+  if (!targetDeadline) return 0;
+  return Math.max(0, Math.ceil((targetDeadline - Date.now()) / 1000));
+};
 
 export default function PaymentModal({
   isOpen,
@@ -18,33 +82,40 @@ export default function PaymentModal({
   const [activeMethod, setActiveMethod] = useState('VIETQR'); // 'VIETQR' | 'MOMO'
   const [isProcessing, setIsProcessing] = useState(false);
   const [copiedField, setCopiedField] = useState(null);
-  const [timeLeft, setTimeLeft] = useState(15 * 60); // 15:00 đếm ngược
   const bookingId = booking?.id;
   const [prevBookingId, setPrevBookingId] = useState(bookingId);
-  const deadlineRef = useRef(null);
 
-  // Điều chỉnh state tức thì khi đổi đơn hàng mà không gây render cascade
+  // Khởi tạo thời gian giữ vé chính xác theo deadline đã lưu (không reset)
+  const [timeLeft, setTimeLeft] = useState(() => calculateRemainingSeconds(getHoldDeadline(booking)));
+
+  // Điều chỉnh state tức thì khi đổi sang đơn hàng khác mà không reset sai đơn cũ
   if (bookingId !== prevBookingId) {
     setPrevBookingId(bookingId);
-    setTimeLeft(15 * 60);
+    setTimeLeft(calculateRemainingSeconds(getHoldDeadline(booking)));
     setIsProcessing(false);
     setCopiedField(null);
   }
 
-  // Bộ đếm ngược 15 phút giữ chỗ
+  // Bộ đếm ngược thời gian giữ chỗ xuyên suốt
   useEffect(() => {
-    if (!isOpen || bookingId == null) return undefined;
-    deadlineRef.current = Date.now() + 15 * 60 * 1000;
+    if (!isOpen || !booking || bookingId == null) return undefined;
+
+    const deadline = getHoldDeadline(booking);
+
     const updateTimeLeft = () => {
-      const remaining = Math.max(0, Math.ceil((deadlineRef.current - Date.now()) / 1000));
+      const remaining = calculateRemainingSeconds(deadline);
       setTimeLeft(remaining);
-      if (remaining === 0) clearInterval(timer);
+      if (remaining <= 0) {
+        clearInterval(timer);
+      }
     };
-    const timer = setInterval(() => {
-      updateTimeLeft();
-    }, 1000);
+
+    // Cập nhật ngay khi mở modal để thời gian luôn chính xác theo giây hiện tại
+    updateTimeLeft();
+
+    const timer = setInterval(updateTimeLeft, 1000);
     return () => clearInterval(timer);
-  }, [isOpen, bookingId]);
+  }, [isOpen, bookingId, booking]);
 
   if (!isOpen || !booking) return null;
 
@@ -88,6 +159,11 @@ export default function PaymentModal({
 
   // Xử lý xác nhận thanh toán mô phỏng
   const handleConfirmPayment = async () => {
+    if (timeLeft === 0) {
+      showToast('Thời gian giữ vé đã hết hạn! Vui lòng đặt lại tour để tiếp tục.', 'error');
+      return;
+    }
+
     setIsProcessing(true);
     try {
       // Giả lập độ trễ xác thực đối soát ngân hàng trong 1.2s tạo trải nghiệm thực tế
@@ -96,6 +172,13 @@ export default function PaymentModal({
       const updated = await bookingService.confirmPayment(booking.id, {
         paymentMethod: activeMethod
       });
+
+      // Xóa khóa lưu giữ thời gian của đơn này vì đã hoàn tất thanh toán
+      try {
+        localStorage.removeItem(`soultrip_hold_deadline_${booking.id}`);
+      } catch {
+        // ignore
+      }
 
       showToast('Thanh toán thành công! Vé điện tử đã được xác nhận.', 'success');
       if (onPaymentSuccess) {
@@ -139,18 +222,43 @@ export default function PaymentModal({
         </div>
 
         {/* Thanh đếm ngược thời gian giữ chỗ */}
-        <div className="px-5 py-2.5 bg-amber-500/10 dark:bg-amber-400/10 border-b border-amber-500/20 flex items-center justify-between text-xs text-amber-800 dark:text-amber-300">
-          <div className="flex items-center gap-1.5 font-medium">
-            <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400 animate-pulse" />
-            <span>Thời gian giữ vé & ưu đãi còn lại:</span>
+        {timeLeft > 0 ? (
+          <div className="px-5 py-2.5 bg-amber-500/10 dark:bg-amber-400/10 border-b border-amber-500/20 flex items-center justify-between text-xs text-amber-800 dark:text-amber-300">
+            <div className="flex items-center gap-1.5 font-medium">
+              <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400 animate-pulse" />
+              <span>Thời gian giữ vé & ưu đãi còn lại:</span>
+            </div>
+            <span className="font-mono font-black text-sm text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/60 px-2 py-0.5 rounded-lg border border-amber-300 dark:border-amber-700">
+              {minutes}:{seconds}
+            </span>
           </div>
-          <span className="font-mono font-black text-sm text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/60 px-2 py-0.5 rounded-lg border border-amber-300 dark:border-amber-700">
-            {minutes}:{seconds}
-          </span>
-        </div>
+        ) : (
+          <div className="px-5 py-2.5 bg-rose-500/15 dark:bg-rose-500/20 border-b border-rose-500/30 flex items-center justify-between text-xs text-rose-800 dark:text-rose-300 animate-fadeIn">
+            <div className="flex items-center gap-1.5 font-bold">
+              <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400" />
+              <span>Thời gian giữ vé đã kết thúc!</span>
+            </div>
+            <span className="font-mono font-black text-sm text-rose-700 dark:text-rose-300 bg-rose-100 dark:bg-rose-950/70 px-2 py-0.5 rounded-lg border border-rose-300 dark:border-rose-700">
+              00:00 (Hết hạn)
+            </span>
+          </div>
+        )}
 
         {/* Thân Modal */}
         <div className="p-4 sm:p-6 space-y-5 overflow-y-auto max-h-[75vh]">
+          {/* Cảnh báo khi hết thời gian giữ vé */}
+          {timeLeft === 0 && (
+            <div className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-xs text-rose-700 dark:text-rose-300 flex items-start gap-2.5 animate-fadeIn">
+              <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <p className="font-bold">Đã hết 15 phút giữ vé & ưu đãi!</p>
+                <p className="text-[11px] text-rose-600 dark:text-rose-400 leading-relaxed">
+                  Chỗ trống của đơn hàng này đã được hệ thống hoàn trả lại số ghế trống khả dụng. Quý khách vui lòng đóng cửa sổ này và đặt lại tour để bắt đầu giữ chỗ mới.
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Thông tin đơn tóm tắt */}
           <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-3 text-xs">
             <div>
@@ -320,15 +428,21 @@ export default function PaymentModal({
 
           <button
             type="button"
-            disabled={isProcessing}
+            disabled={isProcessing || timeLeft === 0}
             onClick={handleConfirmPayment}
-            className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs sm:text-sm font-bold shadow-lg shadow-emerald-600/25 transition flex items-center justify-center gap-2 active:scale-95 disabled:opacity-60"
+            className={`w-full sm:w-auto px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow-lg transition flex items-center justify-center gap-2 ${
+              timeLeft === 0
+                ? 'bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed shadow-none'
+                : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-emerald-600/25 active:scale-95 disabled:opacity-60 cursor-pointer'
+            }`}
           >
             {isProcessing ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
                 <span>Đang đối soát giao dịch...</span>
               </>
+            ) : timeLeft === 0 ? (
+              <span>Đã hết hạn giữ vé</span>
             ) : (
               <>
                 <CheckCircle2 className="w-4 h-4" />

@@ -848,7 +848,7 @@ let users = [];
 let tours = [];
 let bookings = [];
 let blogs = [];
-let blogApprovalRequired = true;
+let blogApprovalRequired = false;
 
 function loadSettings() {
   try {
@@ -856,14 +856,14 @@ function loadSettings() {
       const savedSettings = JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf8'));
       blogApprovalRequired = typeof savedSettings.blogApprovalRequired === 'boolean'
         ? savedSettings.blogApprovalRequired
-        : true;
+        : false;
     } else {
-      blogApprovalRequired = true;
+      blogApprovalRequired = false;
       fs.writeFileSync(SETTINGS_FILE, JSON.stringify({ blogApprovalRequired }, null, 2), 'utf8');
     }
   } catch (err) {
     console.error('Lỗi đọc file settings.json, khởi tạo mặc định:', err.message);
-    blogApprovalRequired = true;
+    blogApprovalRequired = false;
   }
 }
 

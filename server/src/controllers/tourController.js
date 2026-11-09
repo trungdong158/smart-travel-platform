@@ -1,4 +1,4 @@
-const { tours, vouchers, saveTours } = require('../config/data');
+const { tours, vouchers, saveTours, users } = require('../config/data');
 
 function removeVietnameseTones(str) {
   if (!str) return '';
@@ -84,6 +84,16 @@ const getTourById = (req, res) => {
 
   if (!tour) {
     return res.status(404).json({ success: false, message: 'Không tìm thấy tour du lịch yêu cầu!' });
+  }
+
+  // Tự động đồng bộ ảnh đại diện mới nhất của người đánh giá nếu có
+  if (tour.reviews && Array.isArray(tour.reviews) && Array.isArray(users)) {
+    tour.reviews.forEach((rev) => {
+      if ((!rev.avatar || rev.avatar.trim() === '') && rev.userId) {
+        const u = users.find((user) => String(user.id) === String(rev.userId));
+        if (u && u.avatar) rev.avatar = u.avatar;
+      }
+    });
   }
 
   return res.json({ success: true, data: tour });
@@ -230,7 +240,7 @@ const checkVoucher = (req, res) => {
  */
 const addTourReview = (req, res) => {
   const id = Number(req.params.id);
-  const { rating, comment, userName } = req.body;
+  const { rating, comment, userName, avatar, userId } = req.body;
   const tour = tours.find((t) => t.id === id);
 
   if (!tour) {
@@ -245,21 +255,41 @@ const addTourReview = (req, res) => {
   tour.rating = Number((((currentAvg * currentCount) + newRatingNum) / (currentCount + 1)).toFixed(1));
   tour.review_count = currentCount + 1;
 
+  // Ưu tiên nạp avatar và thông tin chính chủ của người dùng hiện tại
+  let reviewerAvatar = (req.user && req.user.avatar) || avatar || '';
+  let reviewerId = (req.user && req.user.id) || userId || null;
+  let reviewerName = (req.user && (req.user.fullName || req.user.name)) || userName || 'Du khách';
+
+  // Nếu reviewerAvatar vẫn chưa có, tra cứu trong danh sách users theo reviewerId
+  if (!reviewerAvatar && reviewerId && Array.isArray(users)) {
+    const matchedUser = users.find((u) => String(u.id) === String(reviewerId));
+    if (matchedUser && matchedUser.avatar) {
+      reviewerAvatar = matchedUser.avatar;
+    }
+  }
+
   if (!tour.reviews) tour.reviews = [];
-  tour.reviews.unshift({
+  const newReview = {
     id: Date.now(),
-    userName: userName || req.user?.fullName || 'Du khách',
+    userId: reviewerId,
+    userName: reviewerName,
+    avatar: reviewerAvatar,
     rating: newRatingNum,
     comment: comment || 'Chuyến đi rất tuyệt vời, phục vụ tận tâm!',
     date: new Date().toLocaleDateString('vi-VN')
-  });
+  };
 
+  tour.reviews.unshift(newReview);
   saveTours();
 
   return res.json({
     success: true,
     message: 'Cảm ơn bạn đã gửi đánh giá cho chuyến đi!',
-    data: { rating: tour.rating, review_count: tour.review_count }
+    data: { 
+      rating: tour.rating, 
+      review_count: tour.review_count,
+      review: newReview
+    }
   });
 };
 

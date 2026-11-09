@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const jwt = require('jsonwebtoken');
 const {
   getAllBlogs,
   getBlogById,
@@ -14,28 +13,10 @@ const {
   updateBlogStatus,
   deleteBlog
 } = require('../controllers/blogController');
-const { authenticateToken, requireAdmin } = require('../middlewares/authMiddleware');
-
-const JWT_SECRET = process.env.JWT_SECRET || 'smarttour_super_secret_key_2026_jwt';
-
-// Middleware nhận diện user nếu có token (không bắt buộc)
-const optionalAuth = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-  if (token) {
-    jwt.verify(token, JWT_SECRET, (err, user) => {
-      if (!err && user) {
-        req.user = user;
-      }
-      next();
-    });
-  } else {
-    next();
-  }
-};
+const { authenticateToken, requireAdmin, optionalAuth } = require('../middlewares/authMiddleware');
 
 // Lấy danh sách blog (Hỗ trợ Infinite Scroll 2 bài/lần)
-router.get('/', getAllBlogs);
+router.get('/', optionalAuth, getAllBlogs);
 
 // Lấy bài viết của chính người dùng đăng nhập
 router.get('/user/me', authenticateToken, getMyBlogs);
@@ -48,7 +29,7 @@ router.get('/admin/approval-setting', authenticateToken, requireAdmin, getBlogAp
 router.patch('/admin/approval-setting', authenticateToken, requireAdmin, updateBlogApprovalSetting);
 
 // Chi tiết 1 bài viết
-router.get('/:id', getBlogById);
+router.get('/:id', optionalAuth, getBlogById);
 
 // Đăng bài viết mới (Bắt buộc đăng nhập)
 router.post('/', authenticateToken, createBlog);

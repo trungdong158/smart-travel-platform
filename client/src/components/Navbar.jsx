@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { 
   Heart, User, LayoutDashboard, LogOut, Menu, X, 
   CalendarClock, ChevronDown, Sun, Moon, BookOpen 
@@ -17,6 +17,25 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Khi click vào menu điều hướng: nếu đang ở chính trang đó thì tự động cuộn mượt mà lên đầu trang
+  const handleNavClick = (targetPath) => {
+    if (location.pathname === targetPath) {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'smooth'
+      });
+      if (document.documentElement) {
+        document.documentElement.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+      }
+      if (document.body) {
+        document.body.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+      }
+    }
+    setMobileMenuOpen(false);
+  };
 
   const handleLogout = () => {
     logout();
@@ -40,7 +59,7 @@ export default function Navbar() {
         {/* Brand: SoulTrip */}
         <Link 
           to="/" 
-          onClick={() => setMobileMenuOpen(false)}
+          onClick={() => handleNavClick('/')}
           className="flex items-center gap-2 sm:gap-2.5 group min-w-0 shrink"
         >
           <img 
@@ -60,9 +79,37 @@ export default function Navbar() {
 
         {/* Desktop Navigation Links */}
         <nav className="hidden md:flex items-center gap-3 lg:gap-4 xl:gap-5 text-sm font-semibold text-slate-600 dark:text-slate-300 shrink-0">
-          <Link to="/" className="hover:text-amber-600 dark:hover:text-amber-400 transition whitespace-nowrap shrink-0">Trang chủ</Link>
-          <Link to="/tours" className="hover:text-amber-600 dark:hover:text-amber-400 transition whitespace-nowrap shrink-0">Khám phá tour</Link>
-          <Link to="/blog" className="hover:text-amber-600 dark:hover:text-amber-400 transition flex items-center gap-1.5 whitespace-nowrap shrink-0">
+          <Link 
+            to="/" 
+            onClick={() => handleNavClick('/')}
+            className={`transition whitespace-nowrap shrink-0 ${
+              location.pathname === '/' 
+                ? 'text-amber-600 dark:text-amber-400 font-bold' 
+                : 'hover:text-amber-600 dark:hover:text-amber-400'
+            }`}
+          >
+            Trang chủ
+          </Link>
+          <Link 
+            to="/tours" 
+            onClick={() => handleNavClick('/tours')}
+            className={`transition whitespace-nowrap shrink-0 ${
+              location.pathname === '/tours' 
+                ? 'text-amber-600 dark:text-amber-400 font-bold' 
+                : 'hover:text-amber-600 dark:hover:text-amber-400'
+            }`}
+          >
+            Khám phá tour
+          </Link>
+          <Link 
+            to="/blog" 
+            onClick={() => handleNavClick('/blog')}
+            className={`transition flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+              location.pathname === '/blog' 
+                ? 'text-amber-600 dark:text-amber-400 font-bold' 
+                : 'hover:text-amber-600 dark:hover:text-amber-400'
+            }`}
+          >
             <BookOpen className="w-4 h-4 text-amber-500" />
             <span>Blog</span>
           </Link>
@@ -70,7 +117,15 @@ export default function Navbar() {
 
           {/* Chỉ khách hàng thông thường mới cần nút Tour của tôi trên thanh điều hướng chính */}
           {isAuthenticated && !isAdmin && (
-            <Link to="/my-bookings" className="hover:text-sky-600 dark:hover:text-sky-400 transition flex items-center gap-1.5 whitespace-nowrap shrink-0">
+            <Link 
+              to="/my-bookings" 
+              onClick={() => handleNavClick('/my-bookings')}
+              className={`transition flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+                location.pathname === '/my-bookings' 
+                  ? 'text-sky-600 dark:text-sky-400 font-bold' 
+                  : 'hover:text-sky-600 dark:hover:text-sky-400'
+              }`}
+            >
               <CalendarClock className="w-4 h-4 text-sky-600 dark:text-sky-400" />
               <span>Tour của tôi</span>
             </Link>
@@ -80,6 +135,7 @@ export default function Navbar() {
           {isAdmin && (
             <Link 
               to="/admin" 
+              onClick={() => handleNavClick('/admin')}
               className="text-indigo-700 dark:text-indigo-300 hover:text-indigo-800 dark:hover:text-white transition flex items-center gap-1.5 bg-indigo-50/90 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 px-3 py-1 rounded-full border border-indigo-200/90 dark:border-indigo-800/80 text-xs font-bold shadow-xs hover:shadow-sm whitespace-nowrap shrink-0"
             >
               <LayoutDashboard className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
@@ -309,22 +365,42 @@ export default function Navbar() {
           <div className="space-y-1 font-semibold text-sm text-slate-700 dark:text-slate-200">
             <Link 
               to="/" 
-              onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 hover:text-sky-600 dark:hover:text-sky-400"
+              onClick={() => handleNavClick('/')}
+              className={`block py-2 ${
+                location.pathname === '/' 
+                  ? 'text-amber-600 dark:text-amber-400 font-bold' 
+                  : 'hover:text-sky-600 dark:hover:text-sky-400'
+              }`}
             >
               Trang chủ
             </Link>
             <Link 
               to="/tours" 
-              onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 hover:text-amber-600 dark:hover:text-amber-400"
+              onClick={() => handleNavClick('/tours')}
+              className={`block py-2 ${
+                location.pathname === '/tours' 
+                  ? 'text-amber-600 dark:text-amber-400 font-bold' 
+                  : 'hover:text-amber-600 dark:hover:text-amber-400'
+              }`}
             >
               Khám phá tour
+            </Link>
+            <Link 
+              to="/blog" 
+              onClick={() => handleNavClick('/blog')}
+              className={`py-2 flex items-center gap-2 ${
+                location.pathname === '/blog' 
+                  ? 'text-amber-600 dark:text-amber-400 font-bold' 
+                  : 'hover:text-amber-600 dark:hover:text-amber-400'
+              }`}
+            >
+              <BookOpen className="w-4 h-4 text-amber-500" />
+              <span>Blog Chia Sẻ</span>
             </Link>
 
             <Link 
               to="/wishlist" 
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={() => handleNavClick('/wishlist')}
               className="block py-2 hover:text-sky-600 dark:hover:text-sky-400 flex items-center justify-between"
             >
               <span>Tour yêu thích</span>
@@ -337,14 +413,14 @@ export default function Navbar() {
               <>
                 <Link 
                   to="/my-bookings" 
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={() => handleNavClick('/my-bookings')}
                   className="block py-2 hover:text-sky-600 dark:hover:text-sky-400"
                 >
                   Lịch sử đặt tour
                 </Link>
                 <Link 
                   to="/profile" 
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={() => handleNavClick('/profile')}
                   className="block py-2 hover:text-sky-600 dark:hover:text-sky-400"
                 >
                   Hồ sơ cá nhân
@@ -355,7 +431,7 @@ export default function Navbar() {
             {isAdmin && (
               <Link 
                 to="/admin" 
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() => handleNavClick('/admin')}
                 className="block py-2 text-indigo-600 dark:text-indigo-400 font-bold"
               >
                 Bảng Quản Trị Hệ Thống

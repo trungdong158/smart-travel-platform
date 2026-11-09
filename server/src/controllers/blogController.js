@@ -11,11 +11,32 @@ const normalizeBlogStatus = (blog) => {
   return ['PENDING', 'APPROVED', 'REJECTED'].includes(blog.status) ? blog.status : 'APPROVED';
 };
 
-const shouldBlogBeVisible = (blog) => {
+const shouldBlogBeVisible = (blog, currentUser = null) => {
   const status = normalizeBlogStatus(blog);
   if (status === 'REJECTED') return false;
-  if (!getBlogApprovalRequired()) return true;
-  return status === 'APPROVED';
+
+  // Bài viết của ADMIN luôn luôn được hiển thị công khai ngay
+  if (blog.author && blog.author.role === 'ADMIN') {
+    return true;
+  }
+
+  // Tác giả bài viết luôn có thể nhìn thấy bài viết của mình
+  if (currentUser && blog.author && (String(blog.author.id) === String(currentUser.id) || blog.author.email === currentUser.email)) {
+    return true;
+  }
+
+  // Quản trị viên (ADMIN) khi duyệt trang blog có thể xem được tất cả bài
+  if (currentUser && currentUser.role === 'ADMIN') {
+    return true;
+  }
+
+  // Nếu chế độ duyệt bài đang BẬT: chỉ hiển thị bài đã APPROVED
+  if (getBlogApprovalRequired()) {
+    return status === 'APPROVED';
+  }
+
+  // Nếu chế độ duyệt bài đang TẮT: tất cả bài viết không bị REJECTED đều hiển thị
+  return true;
 };
 
 /**
@@ -29,7 +50,7 @@ const getAllBlogs = (req, res) => {
     const tourId = req.query.tourId;
     const search = req.query.search;
 
-    let filtered = [...blogs].filter(blog => shouldBlogBeVisible(blog));
+    let filtered = [...blogs].filter(blog => shouldBlogBeVisible(blog, req.user));
 
     // Lọc theo tâm trạng (Mood)
     if (mood && mood !== 'all') {
@@ -97,7 +118,7 @@ const getBlogById = (req, res) => {
     }
 
     const isAdmin = req.user && req.user.role === 'ADMIN';
-    if (!isAdmin && !shouldBlogBeVisible(blog)) {
+    if (!isAdmin && !shouldBlogBeVisible(blog, req.user)) {
       return res.status(404).json({
         success: false,
         message: 'Bài viết này đang chờ duyệt hoặc đã bị từ chối!'
@@ -152,6 +173,17 @@ const createBlog = (req, res) => {
       ? images.filter(img => img && typeof img === 'string') 
       : [defaultCover];
 
+    const isAdmin = req.user && req.user.role === 'ADMIN';
+    const isApprovalRequired = getBlogApprovalRequired();
+
+    // Nguyên tắc duyệt bài viết:
+    // 1. Tính năng duyệt bài viết chỉ áp dụng cho bài viết của user, KHÔNG áp dụng với bài viết của admin (Admin luôn APPROVED ngay).
+    // 2. Tính năng duyệt bài viết chỉ hoạt động khi BẬT nút duyệt bài viết trong trang quản trị (isApprovalRequired === true).
+    let initialStatus = 'APPROVED';
+    if (!isAdmin && isApprovalRequired) {
+      initialStatus = 'PENDING';
+    }
+
     const newBlog = {
       id: Date.now(),
       title: title.trim(),
@@ -172,7 +204,7 @@ const createBlog = (req, res) => {
       likes: 0,
       likedUserIds: [],
       comments: [],
-      status: req.user.role === 'ADMIN' || !getBlogApprovalRequired() ? 'APPROVED' : 'PENDING',
+      status: initialStatus,
       createdAt: new Date().toISOString()
     };
 
@@ -182,7 +214,9 @@ const createBlog = (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'Đăng tải bài viết trải nghiệm thành công!',
+      message: initialStatus === 'PENDING'
+        ? 'Bài viết của bạn đã được gửi và đang chờ quản trị viên phê duyệt!'
+        : 'Đăng tải bài viết trải nghiệm thành công!',
       data: newBlog
     });
   } catch (error) {
@@ -383,8 +417,8 @@ const updateBlogApprovalSetting = (req, res) => {
     return res.json({
       success: true,
       message: savedValue
-        ? 'Đã bật chế độ duyệt bài blog.'
-        : 'Đã tắt chế độ duyệt bài blog, bài viết sẽ tự động hiển thị.',
+        ? 'Đã bật chế độ duyệt bài blog (Áp dụng với bài viết của user).'
+        : 'Đã tắt chế độ duyệt bài blog (Bài viết của user sẽ tự động hiển thị ngay).',
       data: savedValue
     });
   } catch (error) {

@@ -2,11 +2,43 @@ const { bookings, tours, saveBookings, saveTours } = require('../config/data');
 const { isValidEmail, isValidVietnamesePhone, isValidDepartureDate } = require('../utils/validation');
 
 /**
+ * Tự động kiểm tra và giải phóng chỗ trống cho các đơn PENDING đã quá 15 phút giữ chỗ
+ */
+const checkAndExpireBookings = () => {
+  const now = Date.now();
+  let changed = false;
+
+  bookings.forEach((b) => {
+    if (b.status === 'PENDING') {
+      const expTime = b.holdExpiresAt
+        ? new Date(b.holdExpiresAt).getTime()
+        : (b.createdAt ? new Date(b.createdAt).getTime() + 15 * 60 * 1000 : null);
+
+      if (expTime && expTime < now) {
+        b.status = 'CANCELLED';
+        b.cancelReason = 'EXPIRED_HOLD';
+        const tour = tours.find((t) => t.id === Number(b.tourId));
+        if (tour) {
+          tour.available_seats += b.seats;
+        }
+        changed = true;
+      }
+    }
+  });
+
+  if (changed) {
+    saveBookings();
+    saveTours();
+  }
+};
+
+/**
  * Lấy danh sách đơn đặt chỗ
  * Nếu có query param ?email=... thì lọc theo email khách hàng
  * Hỗ trợ bộ lọc ?status=...
  */
 const getAllBookings = (req, res) => {
+  checkAndExpireBookings();
   const { email, status } = req.query;
   let results = [...bookings];
 
@@ -83,6 +115,8 @@ const createBooking = (req, res) => {
 
   const bookingId = Date.now();
   const bookingCode = `ST-${String(bookingId).slice(-6)}`;
+  // Thời gian giữ vé 15 phút xuyên suốt kể từ lúc tạo đơn
+  const holdExpiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
 
   const newBooking = {
     id: bookingId,
@@ -105,7 +139,8 @@ const createBooking = (req, res) => {
     status: 'PENDING',
     paymentStatus: 'UNPAID',
     paymentMethod: 'VIETQR',
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
+    holdExpiresAt
   };
 
   bookings.unshift(newBooking);
@@ -160,6 +195,7 @@ const updateBookingStatus = (req, res) => {
  * Khách hàng tự hủy đơn khi đang Chờ duyệt (Customer)
  */
 const cancelBookingByCustomer = (req, res) => {
+  checkAndExpireBookings();
   const id = Number(req.params.id);
   const booking = bookings.find((b) => b.id === id);
 
@@ -181,6 +217,7 @@ const cancelBookingByCustomer = (req, res) => {
   }
 
   booking.status = 'CANCELLED';
+  booking.cancelReason = 'CUSTOMER_CANCELLED';
   saveBookings();
   saveTours();
 
@@ -196,12 +233,42 @@ const cancelBookingByCustomer = (req, res) => {
  * Chuyển trạng thái đơn sang CONFIRMED và lưu thời gian thanh toán
  */
 const confirmPaymentByCustomer = (req, res) => {
+  checkAndExpireBookings();
   const id = Number(req.params.id);
   const { paymentMethod = 'VIETQR' } = req.body;
   const booking = bookings.find((b) => b.id === id);
 
   if (!booking) {
     return res.status(404).json({ success: false, message: 'Không tìm thấy đơn đặt tour cần thanh toán!' });
+  }
+
+  if (booking.status === 'CANCELLED') {
+    return res.status(400).json({
+      success: false,
+      message: booking.cancelReason === 'EXPIRED_HOLD'
+        ? 'Thời gian giữ vé (15 phút) đã kết thúc! Chỗ trống đã được hoàn trả, vui lòng đặt lại tour.'
+        : 'Đơn đặt tour này đã bị hủy, không thể tiếp tục thanh toán!'
+    });
+  }
+
+  // Kiểm tra nếu đã quá thời gian giữ chỗ
+  const expTime = booking.holdExpiresAt
+    ? new Date(booking.holdExpiresAt).getTime()
+    : (booking.createdAt ? new Date(booking.createdAt).getTime() + 15 * 60 * 1000 : null);
+
+  if (expTime && expTime < Date.now()) {
+    booking.status = 'CANCELLED';
+    booking.cancelReason = 'EXPIRED_HOLD';
+    const tour = tours.find((t) => t.id === Number(booking.tourId));
+    if (tour) {
+      tour.available_seats += booking.seats;
+    }
+    saveBookings();
+    saveTours();
+    return res.status(400).json({
+      success: false,
+      message: 'Thời gian giữ vé (15 phút) đã kết thúc! Chỗ trống đã được hoàn trả, vui lòng đặt lại tour.'
+    });
   }
 
   booking.status = 'CONFIRMED';

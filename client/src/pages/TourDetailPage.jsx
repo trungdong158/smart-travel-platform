@@ -239,16 +239,20 @@ export default function TourDetailPage({ tours = [], onBookingCreated }) {
 
     setIsSubmittingReview(true);
     try {
-      await tourService.addReview(currentTour.id, {
+      const reviewPayload = {
         rating: reviewRating,
         comment: reviewComment.trim(),
         userName: currentUser?.fullName || customerName || 'Du khách',
-        avatar: currentUser?.avatar || ''
-      });
+        avatar: currentUser?.avatar || '',
+        userId: currentUser?.id || null
+      };
+
+      const res = await tourService.addReview(currentTour.id, reviewPayload);
 
       setLocalReviews((prev) => [
-        {
+        res?.data?.review || {
           id: Date.now(),
+          userId: currentUser?.id || null,
           userName: currentUser?.fullName || customerName || 'Du khách',
           avatar: currentUser?.avatar || '',
           rating: reviewRating,
@@ -268,7 +272,7 @@ export default function TourDetailPage({ tours = [], onBookingCreated }) {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10 pb-24 lg:pb-12 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10 pb-32 lg:pb-12 space-y-8">
       
       {/* 1. BREADCRUMB */}
       <nav className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
@@ -573,8 +577,32 @@ export default function TourDetailPage({ tours = [], onBookingCreated }) {
             </div>
 
             {/* Form gửi đánh giá */}
-            <form onSubmit={handleReviewSubmit} className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/80 dark:border-slate-700 space-y-3">
-              <h3 className="font-bold text-xs text-slate-800 dark:text-slate-200">Chia sẻ trải nghiệm của bạn về tour này</h3>
+            <form onSubmit={handleReviewSubmit} className="p-4 sm:p-5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200/80 dark:border-slate-700 space-y-3.5">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-200/60 dark:border-slate-700/60">
+                <div className="flex items-center gap-3">
+                  {currentUser?.avatar ? (
+                    <img
+                      src={currentUser.avatar}
+                      alt={currentUser.fullName}
+                      className="w-10 h-10 rounded-full object-cover ring-2 ring-sky-500/30 shrink-0"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-sky-500 to-indigo-600 text-white font-bold text-sm flex items-center justify-center shrink-0 shadow-sm">
+                      {currentUser?.fullName?.charAt(0) || 'D'}
+                    </div>
+                  )}
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[10px] uppercase font-bold text-sky-600 dark:text-sky-400">
+                        Đang đánh giá với tư cách:
+                      </span>
+                    </div>
+                    <h3 className="font-bold text-xs text-slate-800 dark:text-slate-200">
+                      {currentUser?.fullName || 'Du khách'}
+                    </h3>
+                  </div>
+                </div>
+              </div>
               
               <div className="flex items-center gap-2">
                 <span className="text-xs text-slate-500 dark:text-slate-400">Đánh giá số sao:</span>
@@ -620,44 +648,55 @@ export default function TourDetailPage({ tours = [], onBookingCreated }) {
               {allReviews.length === 0 ? (
                 <p className="text-xs text-slate-400 text-center py-4">Chưa có bình luận nào cho tour này.</p>
               ) : (
-                allReviews.map((rev, idx) => (
-                  <div key={idx} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700/80 space-y-1.5">
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-2">
-                        {rev.avatar ? (
-                          <img
-                            src={rev.avatar}
-                            alt={rev.userName}
-                            onError={(e) => {
-                              e.currentTarget.onerror = null;
-                              e.currentTarget.style.display = 'none';
-                              if (e.currentTarget.nextSibling) {
-                                e.currentTarget.nextSibling.style.display = 'flex';
-                              }
-                            }}
-                            className="w-6 h-6 rounded-full object-cover shrink-0 ring-1 ring-sky-500/30"
-                          />
-                        ) : null}
-                        <div
-                          style={{ display: rev.avatar ? 'none' : 'flex' }}
-                          className="w-6 h-6 rounded-full bg-sky-600 text-white font-bold text-[10px] items-center justify-center shrink-0"
-                        >
-                          {rev.userName?.charAt(0) || 'D'}
+                allReviews.map((rev, idx) => {
+                  const reviewerAvatar = rev.avatar || (currentUser && (rev.userId === currentUser.id || rev.userName === currentUser.fullName) ? currentUser.avatar : '');
+                  return (
+                    <div key={rev.id || idx} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700/80 space-y-2">
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2.5">
+                          {reviewerAvatar ? (
+                            <img
+                              src={reviewerAvatar}
+                              alt={rev.userName}
+                              onError={(e) => {
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.style.display = 'none';
+                                if (e.currentTarget.nextSibling) {
+                                  e.currentTarget.nextSibling.style.display = 'flex';
+                                }
+                              }}
+                              className="w-8 h-8 rounded-full object-cover shrink-0 ring-2 ring-sky-500/20"
+                            />
+                          ) : null}
+                          <div
+                            style={{ display: reviewerAvatar ? 'none' : 'flex' }}
+                            className="w-8 h-8 rounded-full bg-gradient-to-tr from-sky-500 to-indigo-600 text-white font-bold text-xs items-center justify-center shrink-0 shadow-xs"
+                          >
+                            {rev.userName?.charAt(0) || 'D'}
+                          </div>
+                          <div>
+                            <span className="font-bold text-xs text-slate-800 dark:text-slate-100 block">
+                              {rev.userName}
+                            </span>
+                            <span className="text-[10px] text-slate-400 dark:text-slate-500">
+                              {rev.date || 'Gần đây'}
+                            </span>
+                          </div>
                         </div>
-                        <span className="font-bold text-xs text-slate-800 dark:text-slate-100">{rev.userName}</span>
+
+                        <div className="flex text-amber-400">
+                          {Array.from({ length: rev.rating || 5 }).map((_, i) => (
+                            <Star key={i} className="w-3.5 h-3.5 fill-amber-400" />
+                          ))}
+                        </div>
                       </div>
-                      <span className="text-[10px] text-slate-400 dark:text-slate-500">{rev.date || 'Gần đây'}</span>
-                    </div>
 
-                    <div className="flex text-amber-400">
-                      {Array.from({ length: rev.rating || 5 }).map((_, i) => (
-                        <Star key={i} className="w-3 h-3 fill-amber-400" />
-                      ))}
+                      <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed pl-10.5">
+                        {rev.comment}
+                      </p>
                     </div>
-
-                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{rev.comment}</p>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </div>
@@ -988,7 +1027,7 @@ export default function TourDetailPage({ tours = [], onBookingCreated }) {
       </div>
 
       {/* Mobile Sticky Action Bar */}
-      <div className="lg:hidden fixed bottom-0 inset-x-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 p-3 px-4 z-40 flex items-center justify-between shadow-2xl">
+      <div className="lg:hidden fixed bottom-0 inset-x-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 p-3 px-4 z-30 flex items-center justify-between shadow-2xl">
         <div>
           <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold tracking-wider block">Giá trọn gói</span>
           <div className="text-lg font-black text-orange-600 dark:text-orange-400 leading-tight">
