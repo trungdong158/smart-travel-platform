@@ -176,9 +176,10 @@ npm run preview
 Triển khai frontend và Express API trong **một Vercel project** để API được gọi cùng domain:
 
 1. Import repository vào Vercel và giữ **Root Directory** tại thư mục gốc repository.
-2. `vercel.json` đã cấu hình cài dependencies của `client` và `server`, build Vite, xuất `client/dist`, chạy API serverless từ thư mục `api/`, và chuyển các route frontend về `index.html`.
-3. Trong Vercel project settings, thêm `JWT_SECRET` với giá trị bí mật dài, ngẫu nhiên và ổn định. Không dùng secret mặc định trong source code cho môi trường production.
-4. Deploy lại; kiểm tra API tại `https://<domain-vercel>/api/health`.
+2. Chọn Framework Preset **Other**. `vercel.json` cũng đặt `"framework": null` để ghi đè preset; cấu hình hiện tại dùng build Vite ở `client/` và API serverless từ `api/`, không dùng Vercel Services.
+3. `vercel.json` đã cấu hình cài dependencies của `client` và `server`, build Vite, xuất `client/dist`, chạy API serverless từ thư mục `api/`, và chuyển các route frontend về `index.html`.
+4. Trong Vercel project settings, thêm `JWT_SECRET` với giá trị bí mật dài, ngẫu nhiên và ổn định. Không dùng secret mặc định trong source code cho môi trường production.
+5. Deploy lại; kiểm tra API tại `https://<domain-vercel>/api/health`.
 
 Frontend luôn gọi `/api` trên cùng domain, nên không cần cấu hình `VITE_API_BASE_URL`. Khi chạy local, Vite proxy chuyển tiếp `/api` tới `http://localhost:5000`. Nếu project Vercel đang có biến `VITE_API_BASE_URL` từ cấu hình cũ, có thể xóa biến đó.
 

@@ -691,8 +691,8 @@
     "base_price": 3150000,
     "featured_image": "https://upload.wikimedia.org/wikipedia/commons/3/35/Th%C3%A1c_B%E1%BA%A3n_Gi%E1%BB%91c.jpg",
     "available_seats": 10,
-    "rating": 5,
-    "review_count": 33,
+    "rating": 4.9,
+    "review_count": 34,
     "itinerary_summary": "Chiêm ngưỡng dòng thác tự nhiên lớn thứ tư thế giới trên đường biên giới Bản Giốc, thám hiểm hang đá dát vàng Ngườm Ngao và du thuyền trên mặt hồ Ba Bể nguyên sơ.",
     "itinerary_details": [
       {
@@ -727,6 +727,15 @@
     "gallery": [
       "https://upload.wikimedia.org/wikipedia/commons/3/35/Th%C3%A1c_B%E1%BA%A3n_Gi%E1%BB%91c.jpg",
       "https://upload.wikimedia.org/wikipedia/commons/0/00/Scenery_at_Ba_Be_Lake_-_Ba_Be_National_Park_-_Vietnam_-_03.jpg"
+    ],
+    "reviews": [
+      {
+        "id": 1794194866716,
+        "userName": "Đông Trung",
+        "rating": 3,
+        "comment": "sddssfsdf",
+        "date": "9/11/2026"
+      }
     ]
   },
   {
