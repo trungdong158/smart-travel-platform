@@ -137,6 +137,10 @@ export const userService = {
     const res = await apiClient.get('/users');
     return res.data.data || res.data;
   },
+  createAdminAccount: async (payload) => {
+    const res = await apiClient.post('/users/admin', payload);
+    return res.data;
+  },
   updateRole: async (id, role) => {
     const res = await apiClient.patch(`/users/${id}/role`, { role });
     return res.data;

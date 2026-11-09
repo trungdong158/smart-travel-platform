@@ -9,6 +9,16 @@
     "createdAt": "2026-01-15T08:00:00.000Z"
   },
   {
+    "id": 1794020118100,
+    "fullName": "Quản Trị Viên Huy",
+    "email": "tranthanhhuy27272@gmail.com",
+    "phone": "0900000000",
+    "passwordHash": "$2b$10$O./EAYQkfwIUYNXs3CWgR.UfmHxDYIF/Ld4qmBxyX8Zu0xLAq/y/S",
+    "role": "ADMIN",
+    "avatar": "",
+    "createdAt": "2026-11-09T00:00:00.000Z"
+  },
+  {
     "id": 1793896592272,
     "fullName": "Ngô Thuận Dương",
     "email": "thuanduowgg@gmail.com",
@@ -27,5 +37,25 @@
     "passwordHash": "$2b$10$PR24sH0bWeNvT/O982JEe.a/xYZPQx82OZsY7wtN8jREZt8r19F4q",
     "role": "CUSTOMER",
     "createdAt": "2026-11-07T02:55:18.263Z"
+  },
+  {
+    "id": 1794214527868,
+    "fullName": "sldlf",
+    "email": "soi@l.com",
+    "phone": "0998000000",
+    "avatar": "",
+    "passwordHash": "$2b$10$fApCtzM5C49Zf7Q66bM8Pu5oIdMeZinUmbIS21/lzCn/Lxsjv20Zy",
+    "role": "CUSTOMER",
+    "createdAt": "2026-11-09T08:55:28.073Z"
+  },
+  {
+    "id": 1794214748213,
+    "fullName": "shfskdsf",
+    "email": "tkdffs@gamil.com",
+    "phone": "0987654321",
+    "avatar": "",
+    "passwordHash": "$2b$10$LYrQjrwf.J29j5DH8zWY0.DObHsDbVtGjOBHlwXMs1KRZlOyGl5FW",
+    "role": "CUSTOMER",
+    "createdAt": "2026-11-09T08:59:08.422Z"
   }
 ]

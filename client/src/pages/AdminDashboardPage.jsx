@@ -32,6 +32,7 @@ export default function AdminDashboardPage({ tours = [], onTourUpdated }) {
   // Modals state
   const [isAddTourModalOpen, setIsAddTourModalOpen] = useState(false);
   const [editingTour, setEditingTour] = useState(null);
+  const [isCreateAdminModalOpen, setIsCreateAdminModalOpen] = useState(false);
 
   // Form Tour State (dùng cho cả Add và Edit)
   const [tourForm, setTourForm] = useState({
@@ -47,6 +48,12 @@ export default function AdminDashboardPage({ tours = [], onTourUpdated }) {
     available_seats: 10,
     featured_image: '',
     itinerary_summary: ''
+  });
+  const [adminForm, setAdminForm] = useState({
+    fullName: '',
+    email: '',
+    password: '',
+    phone: ''
   });
 
   // Confirm delete modal state
@@ -240,6 +247,21 @@ export default function AdminDashboardPage({ tours = [], onTourUpdated }) {
     }
   };
 
+  // Tạo tài khoản quản trị viên mới
+  const handleCreateAdminSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      await userService.createAdminAccount(adminForm);
+      showToast('Tài khoản quản trị viên mới đã được tạo thành công!', 'success');
+      setIsCreateAdminModalOpen(false);
+      setAdminForm({ fullName: '', email: '', password: '', phone: '' });
+      refreshAllData();
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Không thể tạo tài khoản quản trị viên!', 'error');
+    }
+  };
+
   // Đổi role người dùng
   const handleToggleUserRole = async (userId, currentRole) => {
     const newRole = currentRole === 'ADMIN' ? 'CUSTOMER' : 'ADMIN';
@@ -293,6 +315,13 @@ export default function AdminDashboardPage({ tours = [], onTourUpdated }) {
           >
             <RefreshCw className="w-4 h-4" />
             <span className="hidden sm:inline">Làm mới</span>
+          </button>
+          <button
+            onClick={() => setIsCreateAdminModalOpen(true)}
+            className="px-4 py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:opacity-95 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-1.5"
+          >
+            <ShieldAlert className="w-4 h-4" />
+            <span>Thêm Admin</span>
           </button>
           <button
             onClick={handleOpenAddTour}
@@ -649,6 +678,16 @@ export default function AdminDashboardPage({ tours = [], onTourUpdated }) {
       {/* TAB 3: QUẢN LÝ NGƯỜI DÙNG */}
       {activeTab === 'users' && (
         <div className="space-y-4">
+          <div className="flex justify-end">
+            <button
+              onClick={() => setIsCreateAdminModalOpen(true)}
+              className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl transition flex items-center gap-1.5"
+            >
+              <ShieldAlert className="w-4 h-4" />
+              Tạo tài khoản Admin mới
+            </button>
+          </div>
+
           <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
@@ -745,6 +784,92 @@ export default function AdminDashboardPage({ tours = [], onTourUpdated }) {
                 </tbody>
               </table>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL TẠO TÀI KHOẢN ADMIN */}
+      {isCreateAdminModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div
+            className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800 animate-in zoom-in-95"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
+              <h3 className="font-extrabold text-slate-900 dark:text-white text-base">
+                Tạo Tài Khoản Quản Trị Viên Mới
+              </h3>
+              <button onClick={() => setIsCreateAdminModalOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateAdminSubmit} className="p-6 space-y-4 text-xs">
+              <div>
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Họ và tên *</label>
+                <input
+                  type="text"
+                  required
+                  value={adminForm.fullName}
+                  onChange={(e) => setAdminForm({ ...adminForm, fullName: e.target.value })}
+                  className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:border-violet-500"
+                  placeholder="Ví dụ: Trần Thanh Huy"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Email *</label>
+                  <input
+                    type="email"
+                    required
+                    value={adminForm.email}
+                    onChange={(e) => setAdminForm({ ...adminForm, email: e.target.value })}
+                    className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:border-violet-500"
+                    placeholder="admin@smarttour.vn"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Số điện thoại</label>
+                  <input
+                    type="tel"
+                    value={adminForm.phone}
+                    onChange={(e) => setAdminForm({ ...adminForm, phone: e.target.value })}
+                    className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:border-violet-500"
+                    placeholder="0901234567"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">Mật khẩu *</label>
+                <input
+                  type="password"
+                  required
+                  minLength={6}
+                  value={adminForm.password}
+                  onChange={(e) => setAdminForm({ ...adminForm, password: e.target.value })}
+                  className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:border-violet-500"
+                  placeholder="Ít nhất 6 ký tự"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsCreateAdminModalOpen(false)}
+                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold text-xs shadow-md transition"
+                >
+                  Tạo tài khoản Admin
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

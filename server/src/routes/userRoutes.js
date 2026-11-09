@@ -5,6 +5,7 @@ const { authenticateToken, requireAdmin } = require('../middlewares/authMiddlewa
 
 // Chỉ dành cho Admin
 router.get('/', authenticateToken, requireAdmin, userController.getAllUsers);
+router.post('/admin', authenticateToken, requireAdmin, userController.createAdminUser);
 router.patch('/:id/role', authenticateToken, requireAdmin, userController.updateUserRole);
 router.delete('/:id', authenticateToken, requireAdmin, userController.deleteUser);
 
