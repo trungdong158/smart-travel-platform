@@ -39,23 +39,13 @@
     "createdAt": "2026-11-07T02:55:18.263Z"
   },
   {
-    "id": 1794214527868,
-    "fullName": "sldlf",
-    "email": "soi@l.com",
-    "phone": "0998000000",
+    "id": 1794216637660,
+    "fullName": "huy",
+    "email": "huy84647@gmail.com",
+    "phone": "0912345678",
     "avatar": "",
-    "passwordHash": "$2b$10$fApCtzM5C49Zf7Q66bM8Pu5oIdMeZinUmbIS21/lzCn/Lxsjv20Zy",
+    "passwordHash": "$2b$10$m5kUFI4HQyAXK6Pp36/Q0usBSPF9s/IYxPMXMN.m8GcRlllsYB5LO",
     "role": "CUSTOMER",
-    "createdAt": "2026-11-09T08:55:28.073Z"
-  },
-  {
-    "id": 1794214748213,
-    "fullName": "shfskdsf",
-    "email": "tkdffs@gamil.com",
-    "phone": "0987654321",
-    "avatar": "",
-    "passwordHash": "$2b$10$LYrQjrwf.J29j5DH8zWY0.DObHsDbVtGjOBHlwXMs1KRZlOyGl5FW",
-    "role": "CUSTOMER",
-    "createdAt": "2026-11-09T08:59:08.422Z"
+    "createdAt": "2026-11-09T09:30:37.877Z"
   }
 ]

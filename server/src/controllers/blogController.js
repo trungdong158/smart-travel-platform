@@ -1,4 +1,22 @@
-const { blogs, tours, saveBlogs } = require('../config/data');
+const {
+  blogs,
+  tours,
+  saveBlogs,
+  getBlogApprovalRequired,
+  setBlogApprovalRequired
+} = require('../config/data');
+
+const normalizeBlogStatus = (blog) => {
+  if (!blog || !blog.status) return 'APPROVED';
+  return ['PENDING', 'APPROVED', 'REJECTED'].includes(blog.status) ? blog.status : 'APPROVED';
+};
+
+const shouldBlogBeVisible = (blog) => {
+  const status = normalizeBlogStatus(blog);
+  if (status === 'REJECTED') return false;
+  if (!getBlogApprovalRequired()) return true;
+  return status === 'APPROVED';
+};
 
 /**
  * Lấy danh sách bài viết blog du lịch (Hỗ trợ phân trang Infinite Scroll 2 bài/lần)
@@ -11,7 +29,7 @@ const getAllBlogs = (req, res) => {
     const tourId = req.query.tourId;
     const search = req.query.search;
 
-    let filtered = [...blogs];
+    let filtered = [...blogs].filter(blog => shouldBlogBeVisible(blog));
 
     // Lọc theo tâm trạng (Mood)
     if (mood && mood !== 'all') {
@@ -75,6 +93,14 @@ const getBlogById = (req, res) => {
       return res.status(404).json({
         success: false,
         message: 'Không tìm thấy bài viết này!'
+      });
+    }
+
+    const isAdmin = req.user && req.user.role === 'ADMIN';
+    if (!isAdmin && !shouldBlogBeVisible(blog)) {
+      return res.status(404).json({
+        success: false,
+        message: 'Bài viết này đang chờ duyệt hoặc đã bị từ chối!'
       });
     }
 
@@ -146,6 +172,7 @@ const createBlog = (req, res) => {
       likes: 0,
       likedUserIds: [],
       comments: [],
+      status: req.user.role === 'ADMIN' || !getBlogApprovalRequired() ? 'APPROVED' : 'PENDING',
       createdAt: new Date().toISOString()
     };
 
@@ -301,6 +328,119 @@ const getMyBlogs = (req, res) => {
 };
 
 /**
+ * Lấy danh sách bài blog đang chờ duyệt (Admin)
+ */
+const getPendingBlogs = (req, res) => {
+  try {
+    const pendingBlogs = [...blogs]
+      .filter(blog => normalizeBlogStatus(blog) === 'PENDING')
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    return res.json({
+      success: true,
+      count: pendingBlogs.length,
+      data: pendingBlogs
+    });
+  } catch (error) {
+    console.error('Lỗi khi lấy bài viết chờ duyệt:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Không thể tải danh sách bài viết chờ duyệt!'
+    });
+  }
+};
+
+const getBlogApprovalSetting = (req, res) => {
+  try {
+    return res.json({
+      success: true,
+      data: getBlogApprovalRequired()
+    });
+  } catch (error) {
+    console.error('Lỗi khi lấy cài đặt duyệt bài:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Không thể tải cài đặt duyệt bài blog!'
+    });
+  }
+};
+
+const updateBlogApprovalSetting = (req, res) => {
+  try {
+    const { enabled } = req.body;
+    const nextValue = typeof enabled === 'boolean' ? enabled : Boolean(enabled);
+    const savedValue = setBlogApprovalRequired(nextValue);
+
+    if (!savedValue) {
+      blogs.forEach((blog) => {
+        if (normalizeBlogStatus(blog) === 'PENDING') {
+          blog.status = 'APPROVED';
+        }
+      });
+      saveBlogs();
+    }
+
+    return res.json({
+      success: true,
+      message: savedValue
+        ? 'Đã bật chế độ duyệt bài blog.'
+        : 'Đã tắt chế độ duyệt bài blog, bài viết sẽ tự động hiển thị.',
+      data: savedValue
+    });
+  } catch (error) {
+    console.error('Lỗi khi cập nhật cài đặt duyệt bài:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Không thể cập nhật cài đặt duyệt bài blog!'
+    });
+  }
+};
+
+/**
+ * Duyệt / từ chối bài viết (Admin)
+ */
+const updateBlogStatus = (req, res) => {
+  try {
+    const blogId = parseInt(req.params.id);
+    const { status } = req.body;
+
+    if (!['APPROVED', 'REJECTED', 'PENDING'].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Trạng thái blog không hợp lệ!'
+      });
+    }
+
+    const blog = blogs.find(b => b.id === blogId);
+    if (!blog) {
+      return res.status(404).json({
+        success: false,
+        message: 'Không tìm thấy bài viết cần duyệt!'
+      });
+    }
+
+    blog.status = status;
+    saveBlogs();
+
+    return res.json({
+      success: true,
+      message: status === 'APPROVED'
+        ? 'Đã duyệt bài viết thành công!'
+        : status === 'REJECTED'
+        ? 'Đã từ chối bài viết!'
+        : 'Đã chuyển bài viết về trạng thái chờ duyệt!',
+      data: { id: blog.id, status: blog.status }
+    });
+  } catch (error) {
+    console.error('Lỗi khi cập nhật trạng thái blog:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Không thể cập nhật trạng thái blog!'
+    });
+  }
+};
+
+/**
  * Xóa bài viết
  */
 const deleteBlog = (req, res) => {
@@ -352,5 +492,9 @@ module.exports = {
   addComment,
   toggleLike,
   getMyBlogs,
+  getPendingBlogs,
+  getBlogApprovalSetting,
+  updateBlogApprovalSetting,
+  updateBlogStatus,
   deleteBlog
 };

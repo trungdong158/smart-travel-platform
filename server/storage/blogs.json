@@ -1,55 +1,5 @@
 [
   {
-    "id": 1,
-    "title": "Chạm vào biển mây Fansipan - Chuyến đi chữa lành kỳ diệu sau những ngày kiệt sức",
-    "content": "Có những ngày ở phố thị ồn ào đến mức mình chỉ muốn biến mất một thời gian. Quyết định xách balo lên Sa Pa vào một sáng thứ Sáu là quyết định đúng đắn nhất tháng này. Khi tàu hỏa leo núi Mường Hoa lướt qua thung lũng, rồi cabin cáp treo xuyên qua tầng mây trắng bồng bềnh, cảm giác cả cơ thể như được thanh lọc. Lên đến đỉnh Fansipan 3.143m lúc 10h sáng, gió lạnh buốt táp vào mặt nhưng mặt trời rực rỡ chiếu qua biển mây tầng tầng lớp lớp. Tự tay chạm vào chóp kim loại inox, đứng giữa đất trời Tây Bắc hùng vĩ, mình bỗng nhận ra những lo âu hàng ngày thật nhỏ bé. Buổi tối về bản Cát Cát, ngồi bên bếp lửa nướng ngô và nhấp ngụm trà táo mèo ấm nồng, lòng thấy bình yên đến lạ.",
-    "location": "Sa Pa, Lào Cai",
-    "mood": "healing",
-    "moodLabel": "Chữa Lành & Tĩnh Tại",
-    "author": {
-      "id": 1793896592272,
-      "name": "Ngô Thuận Dương",
-      "email": "thuanduowgg@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
-      "role": "CUSTOMER"
-    },
-    "images": [
-      "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80"
-    ],
-    "tourId": 3,
-    "tour": {
-      "id": 3,
-      "title": "Chinh Phục Nóc Nhà Đông Dương: Fansipan - Sa Pa - Bản Cát Cát",
-      "base_price": 2950000,
-      "duration_days": 3,
-      "destination_name": "Sa Pa, Lào Cai",
-      "featured_image": "https://images.unsplash.com/photo-1570366583862-f91883984fde?auto=format&fit=crop&w=1200&q=80",
-      "rating": 4.9
-    },
-    "likes": 24,
-    "likedUserIds": [],
-    "comments": [
-      {
-        "id": 101,
-        "userId": 1,
-        "userName": "Lê Phan Trung Đông",
-        "userAvatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80",
-        "content": "Ảnh biển mây đẹp nghẹt thở luôn bạn ơi! Mình cũng đang tính đi Sa Pa cuối tuần tới, đi cáp treo có bị say độ cao không bạn?",
-        "createdAt": "2026-11-08T14:20:00.000Z"
-      },
-      {
-        "id": 102,
-        "userId": 1793896592272,
-        "userName": "Ngô Thuận Dương",
-        "userAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
-        "content": "Không say đâu bạn ơi, cáp treo đi êm ru à, chỉ cần mang theo áo ấm và khăn quàng vì trên đỉnh gió khá to nhé!",
-        "createdAt": "2026-11-08T15:05:00.000Z"
-      }
-    ],
-    "createdAt": "2026-11-08T09:30:00.000Z"
-  },
-  {
     "id": 2,
     "title": "Phố cổ Hội An dưới cơn mưa rào bất chợt: Kỷ niệm ướt nhẹp nhưng ấm áp tình người",
     "content": "Hội An ngày nắng đẹp rực rỡ với giàn hoa giấy hồng phấn, nhưng Hội An trong một chiều mưa dông bất chợt lại mang một phong vị hoàn toàn khác. Khi cơn mưa dông ập đến, mình vội tạt vào một hiên nhà cổ trên đường Trần Phú. Bác chủ tiệm may áo dài nở nụ cười hiền hậu, pha ngay một tách trà sả gừng nóng mời mình và vài du khách ngoại quốc lạ mặt cùng trú mưa. Chúng mình ngồi nghe tiếng mưa rơi rả rích trên mái ngói âm dương rêu phong, ngắm những chiếc đèn lồng phản chiếu lung linh trên mặt đường ướt sũng. Cơn mưa tạnh, bầu trời hửng nắng vàng ươm và sông Hoài bảng lảng khói sương. Một trải nghiệm không có trong lịch trình nhưng lại là ký ức sâu đậm nhất của cả chuyến đi.",

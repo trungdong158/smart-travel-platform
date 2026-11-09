@@ -8,9 +8,13 @@ const {
   addComment,
   toggleLike,
   getMyBlogs,
+  getPendingBlogs,
+  getBlogApprovalSetting,
+  updateBlogApprovalSetting,
+  updateBlogStatus,
   deleteBlog
 } = require('../controllers/blogController');
-const { authenticateToken } = require('../middlewares/authMiddleware');
+const { authenticateToken, requireAdmin } = require('../middlewares/authMiddleware');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'smarttour_super_secret_key_2026_jwt';
 
@@ -36,6 +40,13 @@ router.get('/', getAllBlogs);
 // Lấy bài viết của chính người dùng đăng nhập
 router.get('/user/me', authenticateToken, getMyBlogs);
 
+// Lấy các bài viết đang chờ duyệt (Admin)
+router.get('/admin/pending', authenticateToken, requireAdmin, getPendingBlogs);
+
+// Cài đặt duyệt bài blog (Admin)
+router.get('/admin/approval-setting', authenticateToken, requireAdmin, getBlogApprovalSetting);
+router.patch('/admin/approval-setting', authenticateToken, requireAdmin, updateBlogApprovalSetting);
+
 // Chi tiết 1 bài viết
 router.get('/:id', getBlogById);
 
@@ -47,6 +58,9 @@ router.post('/:id/comments', optionalAuth, addComment);
 
 // Thả tim bài viết
 router.post('/:id/like', optionalAuth, toggleLike);
+
+// Duyệt / từ chối bài viết (Admin)
+router.patch('/:id/status', authenticateToken, requireAdmin, updateBlogStatus);
 
 // Xóa bài viết (Chính chủ hoặc Admin)
 router.delete('/:id', authenticateToken, deleteBlog);

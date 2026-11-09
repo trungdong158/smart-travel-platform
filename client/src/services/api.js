@@ -177,6 +177,22 @@ export const blogService = {
     const res = await apiClient.get('/blogs/user/me');
     return res.data.data || res.data;
   },
+  getPendingBlogs: async () => {
+    const res = await apiClient.get('/blogs/admin/pending');
+    return res.data.data || res.data;
+  },
+  getBlogApprovalSetting: async () => {
+    const res = await apiClient.get('/blogs/admin/approval-setting');
+    return res.data.data ?? res.data;
+  },
+  updateBlogApprovalSetting: async (enabled) => {
+    const res = await apiClient.patch('/blogs/admin/approval-setting', { enabled });
+    return res.data;
+  },
+  updateBlogStatus: async (id, status) => {
+    const res = await apiClient.patch(`/blogs/${id}/status`, { status });
+    return res.data;
+  },
   deleteBlog: async (id) => {
     const res = await apiClient.delete(`/blogs/${id}`);
     return res.data;

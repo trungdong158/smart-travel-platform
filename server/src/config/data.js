@@ -11,6 +11,7 @@ const USERS_FILE = path.join(STORAGE_DIR, 'users.json');
 const TOURS_FILE = path.join(STORAGE_DIR, 'tours.json');
 const BOOKINGS_FILE = path.join(STORAGE_DIR, 'bookings.json');
 const BLOGS_FILE = path.join(STORAGE_DIR, 'blogs.json');
+const SETTINGS_FILE = path.join(STORAGE_DIR, 'settings.json');
 
 /**
  * Dữ liệu người dùng khởi tạo hệ thống mặc định (Chỉ giữ tài khoản Admin)
@@ -847,6 +848,32 @@ let users = [];
 let tours = [];
 let bookings = [];
 let blogs = [];
+let blogApprovalRequired = true;
+
+function loadSettings() {
+  try {
+    if (fs.existsSync(SETTINGS_FILE)) {
+      const savedSettings = JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf8'));
+      blogApprovalRequired = typeof savedSettings.blogApprovalRequired === 'boolean'
+        ? savedSettings.blogApprovalRequired
+        : true;
+    } else {
+      blogApprovalRequired = true;
+      fs.writeFileSync(SETTINGS_FILE, JSON.stringify({ blogApprovalRequired }, null, 2), 'utf8');
+    }
+  } catch (err) {
+    console.error('Lỗi đọc file settings.json, khởi tạo mặc định:', err.message);
+    blogApprovalRequired = true;
+  }
+}
+
+function saveSettings() {
+  try {
+    fs.writeFileSync(SETTINGS_FILE, JSON.stringify({ blogApprovalRequired }, null, 2), 'utf8');
+  } catch (err) {
+    console.error('Lỗi khi ghi settings.json:', err.message);
+  }
+}
 
 function loadData() {
   try {
@@ -899,6 +926,7 @@ function loadData() {
 }
 
 loadData();
+loadSettings();
 
 // Hàm lưu dữ liệu xuống đĩa cứng (Persistence)
 function saveUsers() {
@@ -940,8 +968,16 @@ module.exports = {
   bookings,
   blogs,
   vouchers,
+  settings: { blogApprovalRequired },
+  getBlogApprovalRequired: () => blogApprovalRequired,
+  setBlogApprovalRequired: (value) => {
+    blogApprovalRequired = typeof value === 'boolean' ? value : true;
+    saveSettings();
+    return blogApprovalRequired;
+  },
   saveUsers,
   saveTours,
   saveBookings,
-  saveBlogs
+  saveBlogs,
+  saveSettings
 };

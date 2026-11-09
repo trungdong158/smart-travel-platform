@@ -231,6 +231,7 @@ export default function CustomerProfilePage() {
       await blogService.deleteBlog(blogToDelete.id);
       showToast('Đã xóa bài viết thành công!', 'success');
       setMyBlogs(prev => prev.filter(b => b.id !== blogToDelete.id));
+      await fetchMyBlogs();
       setIsDeleteModalOpen(false);
       setBlogToDelete(null);
     } catch (err) {

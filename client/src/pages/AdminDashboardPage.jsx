@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { tourService, bookingService, userService } from '../services/api';
+import { tourService, bookingService, userService, blogService } from '../services/api';
 import { formatVND } from '../utils/format';
 import ConfirmModal from '../components/ConfirmModal';
 import ETicketModal from '../components/ETicketModal';
@@ -15,11 +15,16 @@ export default function AdminDashboardPage({ tours = [], onTourUpdated }) {
   const { currentUser, isAdmin } = useAuth();
   const { showToast } = useToast();
 
-  const [activeTab, setActiveTab] = useState('bookings'); // 'bookings' | 'tours' | 'users'
+  const [activeTab, setActiveTab] = useState('bookings'); // 'bookings' | 'tours' | 'users' | 'blogs'
   const [bookings, setBookings] = useState([]);
   const [users, setUsers] = useState([]);
+  const [pendingBlogs, setPendingBlogs] = useState([]);
+  const [publishedBlogs, setPublishedBlogs] = useState([]);
+  const [blogApprovalRequired, setBlogApprovalRequired] = useState(true);
   const [loadingBookings, setLoadingBookings] = useState(true);
   const [loadingUsers, setLoadingUsers] = useState(true);
+  const [loadingPendingBlogs, setLoadingPendingBlogs] = useState(true);
+  const [loadingPublishedBlogs, setLoadingPublishedBlogs] = useState(true);
 
   // Modal Vé điện tử cho Admin
   const [selectedBookingForTicket, setSelectedBookingForTicket] = useState(null);
@@ -70,19 +75,37 @@ export default function AdminDashboardPage({ tours = [], onTourUpdated }) {
     if (!isAdmin) return;
 
     let ignore = false;
-    Promise.all([bookingService.getAllBookings(), userService.getAllUsers()])
-      .then(([bData, uData]) => {
+    Promise.all([
+      bookingService.getAllBookings(),
+      userService.getAllUsers(),
+      blogService.getPendingBlogs(),
+      blogService.getAllBlogs({ page: 1, limit: 100 }),
+      blogService.getBlogApprovalSetting()
+    ])
+      .then(([bData, uData, pendingBlogData, publishedBlogData, approvalSetting]) => {
         if (!ignore) {
           setBookings(bData);
           setUsers(uData);
+          setBlogApprovalRequired(Boolean(approvalSetting ?? true));
+          setPendingBlogs(Array.isArray(pendingBlogData) ? pendingBlogData : (pendingBlogData?.data || []));
+          const publishedList = Array.isArray(publishedBlogData?.data)
+            ? publishedBlogData.data
+            : Array.isArray(publishedBlogData)
+            ? publishedBlogData
+            : [];
+          setPublishedBlogs(publishedList);
           setLoadingBookings(false);
           setLoadingUsers(false);
+          setLoadingPendingBlogs(false);
+          setLoadingPublishedBlogs(false);
         }
       })
       .catch(() => {
         if (!ignore) {
           setLoadingBookings(false);
           setLoadingUsers(false);
+          setLoadingPendingBlogs(false);
+          setLoadingPublishedBlogs(false);
         }
       });
 
@@ -95,18 +118,33 @@ export default function AdminDashboardPage({ tours = [], onTourUpdated }) {
   const refreshAllData = async () => {
     setLoadingBookings(true);
     setLoadingUsers(true);
+    setLoadingPendingBlogs(true);
+    setLoadingPublishedBlogs(true);
     try {
-      const [bData, uData] = await Promise.all([
+      const [bData, uData, pendingBlogData, publishedBlogData, approvalSetting] = await Promise.all([
         bookingService.getAllBookings(),
-        userService.getAllUsers()
+        userService.getAllUsers(),
+        blogService.getPendingBlogs(),
+        blogService.getAllBlogs({ page: 1, limit: 100 }),
+        blogService.getBlogApprovalSetting()
       ]);
       setBookings(bData);
       setUsers(uData);
+      setBlogApprovalRequired(Boolean(approvalSetting ?? true));
+      setPendingBlogs(Array.isArray(pendingBlogData) ? pendingBlogData : (pendingBlogData?.data || []));
+      const publishedList = Array.isArray(publishedBlogData?.data)
+        ? publishedBlogData.data
+        : Array.isArray(publishedBlogData)
+        ? publishedBlogData
+        : [];
+      setPublishedBlogs(publishedList);
     } catch {
       showToast('Không thể làm mới dữ liệu!', 'error');
     } finally {
       setLoadingBookings(false);
       setLoadingUsers(false);
+      setLoadingPendingBlogs(false);
+      setLoadingPublishedBlogs(false);
     }
   };
 
@@ -286,6 +324,42 @@ export default function AdminDashboardPage({ tours = [], onTourUpdated }) {
     }
   };
 
+  const handleApproveBlog = async (blogId, nextStatus = 'APPROVED') => {
+    try {
+      await blogService.updateBlogStatus(blogId, nextStatus);
+      showToast(nextStatus === 'APPROVED' ? 'Đã duyệt bài viết thành công!' : 'Đã từ chối bài viết!', 'success');
+      refreshAllData();
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Không thể cập nhật trạng thái bài viết!', 'error');
+    }
+  };
+
+  const handleDeleteBlog = async (blogId) => {
+    try {
+      await blogService.deleteBlog(blogId);
+      showToast('Đã xóa bài viết thành công!', 'success');
+      refreshAllData();
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Không thể xóa bài viết!', 'error');
+    }
+  };
+
+  const handleToggleBlogApproval = async (nextValue) => {
+    try {
+      await blogService.updateBlogApprovalSetting(nextValue);
+      setBlogApprovalRequired(nextValue);
+      showToast(
+        nextValue
+          ? 'Đã bật chế độ duyệt bài blog.'
+          : 'Đã tắt chế độ duyệt bài blog, bài viết sẽ tự động hiển thị.',
+        'success'
+      );
+      refreshAllData();
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Không thể cập nhật cài đặt duyệt bài!', 'error');
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-8">
       
@@ -423,6 +497,18 @@ export default function AdminDashboardPage({ tours = [], onTourUpdated }) {
         >
           <Users className="w-4 h-4" />
           <span>Quản Lý Người Dùng ({users.length})</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('blogs')}
+          className={`py-3 px-4 font-extrabold text-xs sm:text-sm border-b-2 transition flex items-center gap-2 whitespace-nowrap ${
+            activeTab === 'blogs'
+              ? 'border-sky-600 text-sky-600 dark:text-sky-400'
+              : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+          }`}
+        >
+          <ShieldAlert className="w-4 h-4" />
+          <span>Blog Chờ Duyệt ({pendingBlogs.length})</span>
         </button>
       </div>
 
@@ -668,6 +754,156 @@ export default function AdminDashboardPage({ tours = [], onTourUpdated }) {
                       </td>
                     </tr>
                   ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 3: BLOG CHỜ DUYỆT */}
+      {activeTab === 'blogs' && (
+        <div className="space-y-6">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-hidden">
+            <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/80 flex items-center justify-between gap-3">
+              <h3 className="text-sm font-black text-slate-900 dark:text-white">Bài viết chờ duyệt</h3>
+              <button
+                type="button"
+                onClick={() => handleToggleBlogApproval(!blogApprovalRequired)}
+                className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors ${
+                  blogApprovalRequired ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'
+                }`}
+                aria-label="Bật/tắt duyệt bài blog"
+                title={blogApprovalRequired ? 'Duyệt bài đang bật' : 'Duyệt bài đang tắt'}
+              >
+                <span
+                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                    blogApprovalRequired ? 'translate-x-8' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
+            {!blogApprovalRequired && (
+              <div className="px-4 py-3 text-xs text-slate-600 dark:text-slate-300 bg-amber-50 dark:bg-amber-950/30 border-b border-amber-200 dark:border-amber-900">
+                Chế độ duyệt bài đang tắt. Tất cả bài viết mới sẽ tự động hiển thị trên blog.
+              </div>
+            )}
+            {blogApprovalRequired && (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 font-bold border-b border-slate-200 dark:border-slate-800 uppercase tracking-wider">
+                  <tr>
+                    <th className="p-4">Tiêu đề</th>
+                    <th className="p-4">Tác giả</th>
+                    <th className="p-4">Địa điểm</th>
+                    <th className="p-4">Ngày đăng</th>
+                    <th className="p-4 text-right">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
+                  {loadingPendingBlogs ? (
+                    <tr>
+                      <td colSpan="5" className="p-8 text-center text-slate-400 dark:text-slate-500">Đang tải bài viết chờ duyệt...</td>
+                    </tr>
+                  ) : pendingBlogs.length === 0 ? (
+                    <tr>
+                      <td colSpan="5" className="p-8 text-center text-slate-400 dark:text-slate-500">Không có bài viết nào đang chờ duyệt.</td>
+                    </tr>
+                  ) : (
+                    pendingBlogs.map((blog) => (
+                      <tr key={blog.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/60 transition">
+                        <td className="p-4 max-w-md">
+                          <div className="font-bold text-slate-900 dark:text-white line-clamp-2">{blog.title}</div>
+                          <div className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 line-clamp-2">{blog.content?.slice(0, 120)}...</div>
+                        </td>
+                        <td className="p-4">
+                          <div className="font-semibold text-slate-800 dark:text-slate-200">{blog.author?.name || blog.author?.fullName || 'Khách'}</div>
+                          <div className="text-[10px] text-slate-400 dark:text-slate-500">{blog.author?.email || ''}</div>
+                        </td>
+                        <td className="p-4">{blog.location || 'Việt Nam'}</td>
+                        <td className="p-4">{blog.createdAt ? new Date(blog.createdAt).toLocaleDateString('vi-VN') : 'Mới'}</td>
+                        <td className="p-4 text-right space-x-2 whitespace-nowrap">
+                          <button
+                            onClick={() => handleApproveBlog(blog.id, 'APPROVED')}
+                            className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-[11px] shadow-sm transition"
+                          >
+                            Duyệt
+                          </button>
+                          <button
+                            onClick={() => handleApproveBlog(blog.id, 'REJECTED')}
+                            className="px-2.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-bold text-[11px] shadow-sm transition"
+                          >
+                            Từ chối
+                          </button>
+                          <button
+                            onClick={() => handleDeleteBlog(blog.id)}
+                            className="px-2.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg font-bold text-[11px] shadow-sm transition"
+                          >
+                            Xóa
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            {!blogApprovalRequired && (
+              <div className="p-8 text-center text-slate-400 dark:text-slate-500 text-xs">
+                Chế độ duyệt bài đang tắt nên nội dung blog chờ duyệt không hiển thị ở trang blog công khai.
+              </div>
+            )}
+          </div>
+
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-hidden">
+            <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/80">
+              <h3 className="text-sm font-black text-slate-900 dark:text-white">Bài viết đã đăng</h3>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 font-bold border-b border-slate-200 dark:border-slate-800 uppercase tracking-wider">
+                  <tr>
+                    <th className="p-4">Tiêu đề</th>
+                    <th className="p-4">Tác giả</th>
+                    <th className="p-4">Địa điểm</th>
+                    <th className="p-4">Ngày đăng</th>
+                    <th className="p-4 text-right">Xóa</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
+                  {loadingPublishedBlogs ? (
+                    <tr>
+                      <td colSpan="5" className="p-8 text-center text-slate-400 dark:text-slate-500">Đang tải bài viết đã đăng...</td>
+                    </tr>
+                  ) : publishedBlogs.length === 0 ? (
+                    <tr>
+                      <td colSpan="5" className="p-8 text-center text-slate-400 dark:text-slate-500">Chưa có bài viết nào được duyệt.</td>
+                    </tr>
+                  ) : (
+                    publishedBlogs.map((blog) => (
+                      <tr key={blog.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/60 transition">
+                        <td className="p-4 max-w-md">
+                          <div className="font-bold text-slate-900 dark:text-white line-clamp-2">{blog.title}</div>
+                          <div className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 line-clamp-2">{blog.content?.slice(0, 120)}...</div>
+                        </td>
+                        <td className="p-4">
+                          <div className="font-semibold text-slate-800 dark:text-slate-200">{blog.author?.name || blog.author?.fullName || 'Khách'}</div>
+                          <div className="text-[10px] text-slate-400 dark:text-slate-500">{blog.author?.email || ''}</div>
+                        </td>
+                        <td className="p-4">{blog.location || 'Việt Nam'}</td>
+                        <td className="p-4">{blog.createdAt ? new Date(blog.createdAt).toLocaleDateString('vi-VN') : 'Mới'}</td>
+                        <td className="p-4 text-right">
+                          <button
+                            onClick={() => handleDeleteBlog(blog.id)}
+                            className="px-2.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg font-bold text-[11px] shadow-sm transition"
+                          >
+                            Xóa blog
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
