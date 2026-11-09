@@ -29,4 +29,4 @@ build/
 *.sw?
 .vercel/
 
-debug.txt
+debug01.txt
