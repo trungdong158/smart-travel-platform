@@ -786,10 +786,10 @@ export default function CustomerProfilePage() {
                 return (
                   <div
                     key={blog.id}
-                    className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-sm max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain flex flex-col hover:shadow-md transition-all duration-300 group"
+                    className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-sm max-h-[calc(100dvh-5rem)] overflow-hidden flex flex-col hover:shadow-md transition-all duration-300 group"
                   >
                     {/* Ảnh bài viết & Mood Badge */}
-                    <div className="relative aspect-video max-h-[40dvh] overflow-hidden bg-slate-100 dark:bg-slate-800">
+                    <div className="relative aspect-video max-h-[28dvh] overflow-hidden bg-slate-100 dark:bg-slate-800">
                       <img
                         src={cover}
                         alt={blog.title}
