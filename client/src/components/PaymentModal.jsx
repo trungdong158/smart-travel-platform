@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   X, CheckCircle2, Copy, Check, Clock, QrCode, 
   Smartphone, Building2, ShieldCheck, ArrowRight, Loader2 
@@ -19,11 +19,13 @@ export default function PaymentModal({
   const [isProcessing, setIsProcessing] = useState(false);
   const [copiedField, setCopiedField] = useState(null);
   const [timeLeft, setTimeLeft] = useState(15 * 60); // 15:00 đếm ngược
-  const [prevBookingId, setPrevBookingId] = useState(booking?.id);
+  const bookingId = booking?.id;
+  const [prevBookingId, setPrevBookingId] = useState(bookingId);
+  const deadlineRef = useRef(null);
 
   // Điều chỉnh state tức thì khi đổi đơn hàng mà không gây render cascade
-  if (booking?.id !== prevBookingId) {
-    setPrevBookingId(booking?.id);
+  if (bookingId !== prevBookingId) {
+    setPrevBookingId(bookingId);
     setTimeLeft(15 * 60);
     setIsProcessing(false);
     setCopiedField(null);
@@ -31,12 +33,18 @@ export default function PaymentModal({
 
   // Bộ đếm ngược 15 phút giữ chỗ
   useEffect(() => {
-    if (!isOpen || timeLeft <= 0) return;
+    if (!isOpen || bookingId == null) return undefined;
+    deadlineRef.current = Date.now() + 15 * 60 * 1000;
+    const updateTimeLeft = () => {
+      const remaining = Math.max(0, Math.ceil((deadlineRef.current - Date.now()) / 1000));
+      setTimeLeft(remaining);
+      if (remaining === 0) clearInterval(timer);
+    };
     const timer = setInterval(() => {
-      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
+      updateTimeLeft();
     }, 1000);
     return () => clearInterval(timer);
-  }, [isOpen, timeLeft]);
+  }, [isOpen, bookingId]);
 
   if (!isOpen || !booking) return null;
 

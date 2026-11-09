@@ -35,24 +35,24 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 shadow-sm transition-colors duration-250">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2 lg:gap-4">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-1 sm:gap-2 lg:gap-4">
         
         {/* Brand: SoulTrip */}
         <Link 
           to="/" 
           onClick={() => setMobileMenuOpen(false)}
-          className="flex items-center gap-2.5 group shrink-0 py-1"
+          className="flex items-center gap-2 sm:gap-2.5 group min-w-0 shrink"
         >
           <img 
             src="/soultrip-logo.png" 
             alt="SoulTrip Logo" 
-            className="w-10 h-10 rounded-xl object-cover shadow-sm group-hover:scale-105 transition-transform duration-200 shrink-0 border border-sky-200/60 dark:border-slate-700/80" 
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl object-cover shadow-sm group-hover:scale-105 transition-transform duration-200 shrink-0 border border-sky-200/60 dark:border-slate-700/80"
           />
-          <div className="flex flex-col justify-center">
-            <span className="text-xl font-black bg-gradient-to-r from-sky-600 via-indigo-600 to-amber-500 dark:from-sky-400 dark:via-indigo-300 dark:to-amber-300 bg-clip-text text-transparent tracking-tight whitespace-nowrap leading-tight">
+          <div className="flex min-w-0 flex-col justify-center">
+            <span className="text-lg sm:text-xl font-black bg-gradient-to-r from-sky-600 via-indigo-600 to-amber-500 dark:from-sky-400 dark:via-indigo-300 dark:to-amber-300 bg-clip-text text-transparent tracking-tight whitespace-nowrap leading-tight">
               SoulTrip
             </span>
-            <span className="block text-[10px] text-slate-500 dark:text-slate-400 font-medium italic tracking-tight whitespace-nowrap -mt-0.5">
+            <span className="hidden min-[360px]:block text-[10px] text-slate-500 dark:text-slate-400 font-medium italic tracking-tight whitespace-nowrap -mt-0.5">
               “ Travel Where Your Soul Leads “
             </span>
           </div>
@@ -234,14 +234,14 @@ export default function Navbar() {
         </div>
 
         {/* Mobile Hamburger & Dark Mode Buttons */}
-        <div className="flex md:hidden items-center gap-2">
+        <div className="flex md:hidden items-center gap-1 sm:gap-2 shrink-0">
           {/* Nút Dark Mode trên Mobile */}
           <button
             type="button"
             onClick={handleToggleTheme}
             title={isDark ? "Chuyển sang Chế độ Sáng" : "Chuyển sang Chế độ Tối"}
             aria-label="Đổi chế độ sáng tối"
-            className={`p-2 rounded-full border transition active:scale-90 ${
+            className={`p-1.5 sm:p-2 rounded-full border transition active:scale-90 ${
               isDark
                 ? 'bg-slate-800 border-amber-500/40 text-amber-300'
                 : 'bg-slate-100 border-slate-300 text-slate-700'
@@ -256,7 +256,7 @@ export default function Navbar() {
 
           <Link 
             to="/wishlist" 
-            className="p-2 text-slate-600 dark:text-slate-300 hover:text-rose-600 relative"
+            className="p-1.5 sm:p-2 text-slate-600 dark:text-slate-300 hover:text-rose-600 relative"
             aria-label="Wishlist"
           >
             <Heart className={`w-5 h-5 ${wishlistCount > 0 ? 'fill-rose-500 text-rose-500' : ''}`} />
@@ -269,7 +269,7 @@ export default function Navbar() {
 
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            className="p-1.5 sm:p-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
             aria-label="Toggle Menu"
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}

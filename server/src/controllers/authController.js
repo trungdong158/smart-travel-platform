@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { users, saveUsers } = require('../config/data');
+const { isValidEmail, isValidVietnamesePhone } = require('../utils/validation');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'smarttour_super_secret_key_2026_jwt';
 
@@ -10,21 +11,20 @@ const JWT_SECRET = process.env.JWT_SECRET || 'smarttour_super_secret_key_2026_jw
 const register = (req, res) => {
   const { fullName, email, password, phone } = req.body;
 
-  if (!fullName || !email || !password) {
+  if (typeof fullName !== 'string' || !fullName.trim() || !email || !password) {
     return res.status(400).json({
       success: false,
       message: 'Vui lòng cung cấp đầy đủ: Họ tên, Email và Mật khẩu!'
     });
   }
 
-  const cleanEmail = email.trim().toLowerCase();
+  const cleanEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
   const cleanFullName = fullName.trim();
-  const cleanPhone = phone ? phone.trim() : '';
+  const cleanPhone = typeof phone === 'string' ? phone.trim() : '';
   const cleanPassword = password.toString();
 
   // Kiểm tra định dạng email
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(cleanEmail)) {
+  if (!isValidEmail(cleanEmail)) {
     return res.status(400).json({
       success: false,
       message: 'Địa chỉ email không đúng định dạng hợp lệ!'
@@ -39,14 +39,11 @@ const register = (req, res) => {
     });
   }
 
-  // Kiểm tra nếu số điện thoại là chữ hoặc có chữ trong đó
-  if (cleanPhone) {
-    if (/[a-zA-ZÀ-ỹ]/.test(cleanPhone)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Vui lòng nhập số điện thoại đúng định dạng.'
-      });
-    }
+  if (cleanPhone && !isValidVietnamesePhone(cleanPhone)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Vui lòng nhập số điện thoại Việt Nam hợp lệ (ví dụ: 0912 345 678).'
+    });
   }
 
   // Kiểm tra trùng email - Mỗi email chỉ được đăng ký một tài khoản
@@ -190,13 +187,11 @@ const updateProfile = (req, res) => {
   if (fullName) user.fullName = fullName.trim();
   if (phone !== undefined) {
     const cleanPhone = typeof phone === 'string' ? phone.trim() : '';
-    if (cleanPhone) {
-      if (/[a-zA-ZÀ-ỹ]/.test(cleanPhone)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Vui lòng nhập số điện thoại đúng định dạng.'
-        });
-      }
+    if (cleanPhone && !isValidVietnamesePhone(cleanPhone)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Vui lòng nhập số điện thoại Việt Nam hợp lệ (ví dụ: 0912 345 678).'
+      });
     }
     user.phone = cleanPhone;
   }

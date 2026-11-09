@@ -335,6 +335,13 @@ export default function CustomerProfilePage() {
       return;
     }
 
+    const phoneValidation = validatePhoneNumber(phone, false);
+    if (!phoneValidation.isValid) {
+      setPhoneError(phoneValidation.message);
+      showToast(phoneValidation.message, 'error');
+      return;
+    }
+
     // Kiểm tra định dạng số điện thoại nếu người dùng nhập
     if (phone && phone.trim()) {
       const phoneValidation = validatePhoneNumber(phone, false);
@@ -412,11 +419,11 @@ export default function CustomerProfilePage() {
       </div>
 
       {/* Tabs chuyển đổi giữa Hồ Sơ & Bài Viết Của Tôi */}
-      <div className="flex items-center gap-2 border-b border-slate-200/80 dark:border-slate-800">
+      <div className="flex items-center gap-1 sm:gap-2 border-b border-slate-200/80 dark:border-slate-800">
         <button
           type="button"
           onClick={() => setActiveTab('profile')}
-          className={`flex items-center gap-2 px-5 py-3 text-xs sm:text-sm font-bold border-b-2 transition -mb-px ${
+          className={`flex flex-1 items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-5 py-3 text-[11px] sm:text-sm font-bold border-b-2 transition -mb-px ${
             activeTab === 'profile'
               ? 'border-sky-600 text-sky-600 dark:border-sky-400 dark:text-sky-400'
               : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
@@ -432,7 +439,7 @@ export default function CustomerProfilePage() {
             setActiveTab('my_blogs');
             fetchMyBlogs();
           }}
-          className={`flex items-center gap-2 px-5 py-3 text-xs sm:text-sm font-bold border-b-2 transition -mb-px ${
+          className={`flex flex-1 items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-5 py-3 text-[11px] sm:text-sm font-bold border-b-2 transition -mb-px ${
             activeTab === 'my_blogs'
               ? 'border-sky-600 text-sky-600 dark:border-sky-400 dark:text-sky-400'
               : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
@@ -779,10 +786,10 @@ export default function CustomerProfilePage() {
                 return (
                   <div
                     key={blog.id}
-                    className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col hover:shadow-md transition-all duration-300 group"
+                    className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-sm max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain flex flex-col hover:shadow-md transition-all duration-300 group"
                   >
                     {/* Ảnh bài viết & Mood Badge */}
-                    <div className="relative aspect-[16/9] overflow-hidden bg-slate-100 dark:bg-slate-800">
+                    <div className="relative aspect-video max-h-[40dvh] overflow-hidden bg-slate-100 dark:bg-slate-800">
                       <img
                         src={cover}
                         alt={blog.title}
@@ -880,7 +887,7 @@ export default function CustomerProfilePage() {
 
                         <div className="flex items-center gap-2">
                           <Link
-                            to="/blog"
+                            to={`/blog?id=${encodeURIComponent(blog.id)}`}
                             className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950/50 transition"
                           >
                             <span>Xem trên Blog</span>

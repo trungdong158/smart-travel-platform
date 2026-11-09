@@ -1,4 +1,5 @@
 const { bookings, tours, saveBookings, saveTours } = require('../config/data');
+const { isValidEmail, isValidVietnamesePhone, isValidDepartureDate } = require('../utils/validation');
 
 /**
  * Lấy danh sách đơn đặt chỗ
@@ -45,12 +46,21 @@ const createBooking = (req, res) => {
     });
   }
 
-  // Kiểm tra nếu số điện thoại là chữ hoặc có chữ trong đó
-  const cleanPhone = String(phone).trim();
-  if (/[a-zA-ZÀ-ỹ]/.test(cleanPhone)) {
+  if (!isValidEmail(email)) {
+    return res.status(400).json({ success: false, message: 'Địa chỉ email không hợp lệ!' });
+  }
+
+  if (!isValidVietnamesePhone(phone)) {
     return res.status(400).json({
       success: false,
-      message: 'Vui lòng nhập số điện thoại đúng định dạng.'
+      message: 'Vui lòng nhập số điện thoại Việt Nam hợp lệ (ví dụ: 0912 345 678).'
+    });
+  }
+
+  if (departureDate && !isValidDepartureDate(departureDate)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Ngày khởi hành phải là ngày hợp lệ và sau ngày đặt vé!'
     });
   }
 

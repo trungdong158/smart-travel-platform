@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { 
   BookOpen, Heart, MessageCircle, Share2, Send, 
   Sparkles, Plus, MapPin, Calendar, ArrowRight, 
@@ -70,6 +70,8 @@ function resizeTripImage(file, maxWidth = 1280, maxHeight = 850, quality = 0.82)
 export default function BlogPage({ tours = [] }) {
   const { currentUser, isAuthenticated, openAuthModal } = useAuth();
   const { showToast } = useToast();
+  const [searchParams] = useSearchParams();
+  const requestedBlogId = searchParams.get('id');
 
   // State danh sách bài viết & phân trang Infinite Scroll
   const [blogs, setBlogs] = useState([]);
@@ -78,6 +80,7 @@ export default function BlogPage({ tours = [] }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [selectedMood, setSelectedMood] = useState('all');
+  const [highlightedBlogId, setHighlightedBlogId] = useState(null);
 
   // State Modal Viết bài mới & Nạp ảnh từ thiết bị
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -101,6 +104,42 @@ export default function BlogPage({ tours = [] }) {
   // Sentinel Ref cho IntersectionObserver
   const sentinelRef = useRef(null);
 
+  useEffect(() => {
+    if (!requestedBlogId) return undefined;
+    let ignore = false;
+
+    blogService.getBlogById(requestedBlogId)
+      .then((blog) => {
+        if (ignore || !blog) return;
+        setBlogs((previousBlogs) => (
+          previousBlogs.some((item) => String(item.id) === String(blog.id))
+            ? previousBlogs
+            : [blog, ...previousBlogs]
+        ));
+        setHighlightedBlogId(String(blog.id));
+      })
+      .catch(() => {
+        if (!ignore) showToast('Không tìm thấy bài viết được chia sẻ!', 'error');
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, [requestedBlogId, showToast]);
+
+  useEffect(() => {
+    if (
+      isInitialLoading ||
+      !highlightedBlogId ||
+      !blogs.some((blog) => String(blog.id) === highlightedBlogId)
+    ) return undefined;
+    const frame = requestAnimationFrame(() => {
+      document.getElementById(`blog-post-${highlightedBlogId}`)
+        ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [highlightedBlogId, blogs, isInitialLoading]);
+
   // Tải danh sách bài viết ban đầu hoặc khi người dùng thay đổi bộ lọc Mood
   useEffect(() => {
     let ignore = false;
@@ -112,7 +151,15 @@ export default function BlogPage({ tours = [] }) {
         }
         const res = await blogService.getAllBlogs(params);
         if (!ignore && res && res.success) {
-          setBlogs(res.data || []);
+          const fetchedBlogs = res.data || [];
+          setBlogs((previousBlogs) => {
+            if (!requestedBlogId) return fetchedBlogs;
+            const fetchedIds = new Set(fetchedBlogs.map((blog) => String(blog.id)));
+            return [
+              ...fetchedBlogs,
+              ...previousBlogs.filter((blog) => !fetchedIds.has(String(blog.id)))
+            ];
+          });
           setPage(1);
           setHasMore(res.pagination ? res.pagination.hasMore : false);
         }
@@ -131,7 +178,7 @@ export default function BlogPage({ tours = [] }) {
     return () => {
       ignore = true;
     };
-  }, [selectedMood, showToast]);
+  }, [selectedMood, showToast, requestedBlogId]);
 
   // Hàm tải thêm bài viết (Infinite Scroll - Nối tiếp, KHÔNG XÓA bài cũ)
   const loadMoreBlogs = useCallback(async () => {
@@ -375,12 +422,36 @@ export default function BlogPage({ tours = [] }) {
   };
 
   // Helper chia sẻ liên kết
-  const handleSharePost = (blog) => {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(window.location.origin + `/blog?id=${blog.id}`);
+  const handleSharePost = async (blog) => {
+    const shareUrl = new URL('/blog', window.location.origin);
+    shareUrl.searchParams.set('id', blog.id);
+
+    try {
+      let copied = false;
+      if (navigator.clipboard?.writeText) {
+        try {
+          await navigator.clipboard.writeText(shareUrl.toString());
+          copied = true;
+        } catch {
+          copied = false;
+        }
+      }
+
+      if (!copied) {
+        const temporaryInput = document.createElement('textarea');
+        temporaryInput.value = shareUrl.toString();
+        temporaryInput.setAttribute('readonly', '');
+        temporaryInput.style.position = 'fixed';
+        temporaryInput.style.opacity = '0';
+        document.body.appendChild(temporaryInput);
+        temporaryInput.select();
+        copied = document.execCommand('copy');
+        temporaryInput.remove();
+      }
+      if (!copied) throw new Error('Clipboard access is unavailable');
       showToast('Đã sao chép liên kết bài viết vào bộ nhớ tạm!', 'success');
-    } else {
-      showToast('Bài viết: ' + blog.title, 'info');
+    } catch {
+      showToast('Không thể sao chép liên kết. Vui lòng kiểm tra quyền truy cập clipboard của trình duyệt!', 'error');
     }
   };
 
@@ -490,7 +561,12 @@ export default function BlogPage({ tours = [] }) {
               return (
                 <article 
                   key={blog.id}
-                  className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col"
+                  id={`blog-post-${blog.id}`}
+                  className={`bg-white dark:bg-slate-900 rounded-3xl border shadow-sm hover:shadow-md transition-all duration-300 max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain flex flex-col ${
+                    highlightedBlogId === String(blog.id)
+                      ? 'border-amber-400 ring-2 ring-amber-300/60'
+                      : 'border-slate-200/90 dark:border-slate-800'
+                  }`}
                 >
                   {/* Tác giả & Header bài viết */}
                   <div className="p-5 sm:p-7 pb-3 flex items-start justify-between gap-4">
@@ -557,17 +633,17 @@ export default function BlogPage({ tours = [] }) {
                   {Array.isArray(blog.images) && blog.images.length > 0 && blog.images[0] && (
                     <div className="px-5 sm:px-7 pt-4">
                       {blog.images.length === 1 ? (
-                        <div className="rounded-2xl overflow-hidden max-h-[460px] bg-slate-100 dark:bg-slate-800 shadow-inner">
+                        <div className="relative aspect-video max-h-[45dvh] rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 shadow-inner">
                           <img 
                             src={blog.images[0]} 
                             alt={blog.title}
-                            className="w-full h-full object-cover hover:scale-102 transition-transform duration-500" 
+                            className="absolute inset-0 w-full h-full object-cover hover:scale-102 transition-transform duration-500"
                             loading="lazy"
                           />
                         </div>
                       ) : (
-                        <div className={`grid gap-2 rounded-2xl overflow-hidden ${
-                          blog.images.length === 2 ? 'grid-cols-2 max-h-[380px]' : 'grid-cols-2 sm:grid-cols-3 max-h-[440px]'
+                        <div className={`grid gap-2 rounded-2xl overflow-hidden max-h-[45dvh] ${
+                          blog.images.length === 2 ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3'
                         }`}>
                           {blog.images.slice(0, 6).map((img, idx) => (
                             <div key={idx} className="relative aspect-video sm:aspect-square bg-slate-100 dark:bg-slate-800 overflow-hidden group/img">

@@ -3,7 +3,7 @@ import { X, User, Mail, Phone, LogIn, UserPlus, KeyRound, ArrowLeft, CheckCircle
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import PasswordInput from './PasswordInput';
-import { validatePhoneNumber } from '../utils/validation';
+import { validateEmail, validatePhoneNumber } from '../utils/validation';
 
 export default function AuthModal() {
   const { isAuthModalOpen, closeAuthModal, login, register } = useAuth();
@@ -58,9 +58,8 @@ export default function AuthModal() {
       return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(cleanEmail)) {
-      setErrorMsg('Địa chỉ email không đúng định dạng!');
+    if (!validateEmail(cleanEmail)) {
+      setErrorMsg('Địa chỉ email không hợp lệ. Vui lòng kiểm tra tên hộp thư và tên miền!');
       return;
     }
 
@@ -105,9 +104,8 @@ export default function AuthModal() {
       return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(cleanEmail)) {
-      setErrorMsg('Địa chỉ email không đúng định dạng!');
+    if (!validateEmail(cleanEmail)) {
+      setErrorMsg('Địa chỉ email không hợp lệ. Vui lòng kiểm tra tên hộp thư và tên miền!');
       return;
     }
 

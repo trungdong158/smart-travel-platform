@@ -10,7 +10,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { tourService, bookingService } from '../services/api';
 import { getMoodById } from '../utils/moods';
-import { validatePhoneNumber } from '../utils/validation';
+import { getLocalDateString, validateEmail, validatePhoneNumber } from '../utils/validation';
 
 // Lazy-load các modal thanh toán & vé điện tử để tối ưu 100% tốc độ tải trang ban đầu
 const PaymentModal = lazy(() => import('../components/PaymentModal'));
@@ -71,7 +71,12 @@ export default function TourDetailPage({ tours = [], onBookingCreated }) {
   const [departureDate, setDepartureDate] = useState(() => {
     const d = new Date();
     d.setDate(d.getDate() + 7);
-    return d.toISOString().split('T')[0];
+    return getLocalDateString(d);
+  });
+  const [minimumDepartureDate] = useState(() => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return getLocalDateString(tomorrow);
   });
   const [customerName, setCustomerName] = useState(() => currentUser?.fullName || '');
   const [phone, setPhone] = useState(() => currentUser?.phone || '');
@@ -164,6 +169,16 @@ export default function TourDetailPage({ tours = [], onBookingCreated }) {
     if (!phoneValidation.isValid) {
       setPhoneError('Vui lòng nhập số điện thoại đúng định dạng.');
       showToast('Vui lòng nhập số điện thoại đúng định dạng.', 'error');
+      return;
+    }
+
+    if (departureDate < minimumDepartureDate) {
+      showToast('Ngày khởi hành phải sau ngày đặt vé!', 'error');
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      showToast('Địa chỉ email không hợp lệ. Vui lòng kiểm tra tên hộp thư và tên miền!', 'error');
       return;
     }
 
@@ -766,6 +781,7 @@ export default function TourDetailPage({ tours = [], onBookingCreated }) {
                       id="booking-departure-date"
                       type="date"
                       required
+                      min={minimumDepartureDate}
                       value={departureDate}
                       onChange={(e) => setDepartureDate(e.target.value)}
                       className="w-full pl-10 pr-3 py-2 text-xs border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:border-sky-500"
@@ -856,6 +872,7 @@ export default function TourDetailPage({ tours = [], onBookingCreated }) {
                     id="booking-customer-email"
                     type="email"
                     required
+                    maxLength={254}
                     placeholder="name@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
