@@ -1,6 +1,34 @@
 import axios from 'axios';
 
-const API_BASE_URL = '/api';
+// Tự động nhận diện môi trường (Local máy tính, LAN di động, hoặc Vercel / Production)
+const getApiBaseUrl = () => {
+  // 1. Ưu tiên biến môi trường VITE_API_URL nếu được cấu hình
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+
+  if (typeof window !== 'undefined' && window.location && window.location.hostname) {
+    const { hostname, protocol } = window.location;
+
+    // 2. Localhost phát triển trên máy tính
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return 'http://localhost:5000/api';
+    }
+
+    // 3. Nếu truy cập qua IP mạng nội bộ (Wi-Fi LAN) từ điện thoại / tablet
+    const isIpAddress = /^(\d{1,3}\.){3}\d{1,3}$/.test(hostname);
+    if (isIpAddress) {
+      return `${protocol}//${hostname}:5000/api`;
+    }
+
+    // 4. Môi trường Production / Vercel (dùng /api tương đối để rewrites chuyển tiếp không lỗi CORS / Mixed-Content)
+    return '/api';
+  }
+
+  return 'http://localhost:5000/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,

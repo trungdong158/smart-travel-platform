@@ -2,17 +2,39 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/png" href="/soultrip-logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Nền tảng Đặt tour Du lịch và Trải nghiệm Thông minh SmartTour - Đồ án môn Thiết kế Web" />
-    <title>SmartTour - Đặt Tour Du Lịch & Trải Nghiệm Thông Minh</title>
-    <!-- Google Fonts: Playfair Display (Serif sang trọng) & Plus Jakarta Sans -->
+    <meta name="referrer" content="no-referrer" />
+    <meta name="description" content="SoulTrip - Travel Where Your Soul Leads. Nền tảng Đặt tour Du lịch và Trải nghiệm Cảm xúc theo Mood." />
+    <title>Soultrip | Travel Where Your Soul Leads</title>
+
+    <!-- Preconnect & DNS Prefetch to Image & Font CDNs -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;0,900;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
+    <link rel="preconnect" href="https://upload.wikimedia.org" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link rel="dns-prefetch" href="https://images.unsplash.com">
+    <link rel="dns-prefetch" href="https://upload.wikimedia.org">
+
+    <!-- Non-Blocking Async Google Fonts (Triệt tiêu Render-Blocking Resources) -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+    </noscript>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div style="min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #0b1120; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; color: #f8fafc;">
+        <div style="position: relative; width: 96px; height: 96px; margin-bottom: 20px;">
+          <img src="/soultrip-logo.png" alt="SoulTrip Logo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 24px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.1);" />
+        </div>
+        <div style="font-size: 28px; font-weight: 900; letter-spacing: -0.025em; background: linear-gradient(to right, #38bdf8, #818cf8, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">SoulTrip</div>
+        <div style="font-size: 13px; color: #94a3b8; font-style: italic; margin-top: 6px;">“ Travel Where Your Soul Leads “</div>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

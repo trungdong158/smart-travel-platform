@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { authService } from '../services/api';
 import PasswordInput from '../components/PasswordInput';
+import { validatePhoneNumber } from '../utils/validation';
 
 // Bộ sưu tập avatar du lịch phong cách tuyển chọn
 const PRESET_AVATARS = [
@@ -96,7 +97,22 @@ export default function CustomerProfilePage() {
   // State thông tin cá nhân
   const [fullName, setFullName] = useState(currentUser?.fullName || '');
   const [phone, setPhone] = useState(currentUser?.phone || '');
+  const [phoneError, setPhoneError] = useState('');
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+
+  // Kiểm tra số điện thoại khi người dùng nhập xong và chuyển sang ô khác (blur)
+  const handlePhoneBlur = () => {
+    if (phone && phone.trim()) {
+      const res = validatePhoneNumber(phone, false);
+      if (!res.isValid) {
+        setPhoneError('Vui lòng nhập số điện thoại đúng định dạng.');
+      } else {
+        setPhoneError('');
+      }
+    } else {
+      setPhoneError('');
+    }
+  };
 
   // State đổi mật khẩu
   const [currentPassword, setCurrentPassword] = useState('');
@@ -205,6 +221,16 @@ export default function CustomerProfilePage() {
     if (!fullName.trim()) {
       showToast('Họ tên không được để trống!', 'error');
       return;
+    }
+
+    // Kiểm tra định dạng số điện thoại nếu người dùng nhập
+    if (phone && phone.trim()) {
+      const phoneValidation = validatePhoneNumber(phone, false);
+      if (!phoneValidation.isValid) {
+        setPhoneError('Vui lòng nhập số điện thoại đúng định dạng.');
+        showToast('Vui lòng nhập số điện thoại đúng định dạng.', 'error');
+        return;
+      }
     }
 
     setIsUpdatingProfile(true);
@@ -337,7 +363,7 @@ export default function CustomerProfilePage() {
               <h3 className="font-extrabold text-base text-slate-900 dark:text-white">{currentUser?.fullName}</h3>
               <p className="text-xs text-slate-400 dark:text-slate-500">{currentUser?.email}</p>
               <span className="inline-block mt-2 text-[11px] font-bold px-3 py-1 rounded-full bg-sky-100 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300">
-                {currentUser?.role === 'ADMIN' ? '👑 Quản Trị Viên' : 'Thành Viên SmartTour'}
+                {currentUser?.role === 'ADMIN' ? '👑 Quản Trị Viên' : 'Thành Viên SoulTrip'}
               </span>
             </div>
 
@@ -400,10 +426,23 @@ export default function CustomerProfilePage() {
                     type="tel"
                     placeholder="0912 345 678"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="w-full pl-10 pr-3 py-2 text-xs border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:border-sky-500"
+                    onChange={(e) => {
+                      setPhone(e.target.value);
+                      if (phoneError) setPhoneError('');
+                    }}
+                    onBlur={handlePhoneBlur}
+                    className={`w-full pl-10 pr-3 py-2 text-xs border ${
+                      phoneError
+                        ? 'border-rose-400 focus:border-rose-500 focus:ring-1 focus:ring-rose-200 dark:focus:ring-rose-950/40'
+                        : 'border-slate-200 dark:border-slate-700 focus:border-sky-500'
+                    } bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:outline-none transition`}
                   />
                 </div>
+                {phoneError && (
+                  <span className="text-[11px] text-rose-500 font-medium mt-1 block">
+                    {phoneError}
+                  </span>
+                )}
               </div>
 
               <div className="flex justify-end pt-2">
@@ -425,7 +464,23 @@ export default function CustomerProfilePage() {
             </h2>
             <form onSubmit={handleChangePassword} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Mật khẩu hiện tại</label>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Mật khẩu hiện tại
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      showToast(
+                        `Đã gửi hướng dẫn khôi phục mật khẩu đến email ${currentUser?.email || ''} (Tính năng mô phỏng)`,
+                        'info'
+                      );
+                    }}
+                    className="text-[11px] text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 hover:underline font-semibold cursor-pointer"
+                  >
+                    Quên mật khẩu?
+                  </button>
+                </div>
                 <PasswordInput
                   required
                   placeholder="••••••••"

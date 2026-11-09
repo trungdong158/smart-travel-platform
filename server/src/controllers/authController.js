@@ -1,7 +1,8 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { users, saveUsers } = require('../config/data');
-const JWT_SECRET = require('../config/jwt');
+
+const JWT_SECRET = process.env.JWT_SECRET || 'smarttour_super_secret_key_2026_jwt';
 
 /**
  * Đăng ký tài khoản Khách hàng mới (Customer)
@@ -36,6 +37,16 @@ const register = (req, res) => {
       success: false,
       message: 'Mật khẩu phải có độ dài từ 6 ký tự trở lên!'
     });
+  }
+
+  // Kiểm tra nếu số điện thoại là chữ hoặc có chữ trong đó
+  if (cleanPhone) {
+    if (/[a-zA-ZÀ-ỹ]/.test(cleanPhone)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Vui lòng nhập số điện thoại đúng định dạng.'
+      });
+    }
   }
 
   // Kiểm tra trùng email - Mỗi email chỉ được đăng ký một tài khoản
@@ -177,7 +188,18 @@ const updateProfile = (req, res) => {
   }
 
   if (fullName) user.fullName = fullName.trim();
-  if (phone !== undefined) user.phone = phone.trim();
+  if (phone !== undefined) {
+    const cleanPhone = typeof phone === 'string' ? phone.trim() : '';
+    if (cleanPhone) {
+      if (/[a-zA-ZÀ-ỹ]/.test(cleanPhone)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Vui lòng nhập số điện thoại đúng định dạng.'
+        });
+      }
+    }
+    user.phone = cleanPhone;
+  }
   if (avatar !== undefined) user.avatar = typeof avatar === 'string' ? avatar.trim() : '';
 
   saveUsers(); // Lưu bền vững

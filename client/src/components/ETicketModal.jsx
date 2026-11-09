@@ -1,4 +1,5 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   X, Printer, Sparkles, CheckCircle2, 
   MapPin, Calendar, Plane, Bus, Users, ShieldCheck 
@@ -15,6 +16,15 @@ export default function ETicketModal({
 }) {
   const ticketRef = useRef(null);
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    document.body.classList.add('ticket-modal-open');
+    return () => {
+      document.body.classList.remove('ticket-modal-open');
+    };
+  }, [isOpen]);
+
   if (!isOpen || !booking) return null;
 
   const bookingCode = booking.bookingCode || `ST-${String(booking.id).slice(-6)}`;
@@ -30,10 +40,13 @@ export default function ETicketModal({
     window.print();
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn overflow-y-auto">
+  const modalContent = (
+    <div 
+      id="ticket-print-portal"
+      className="ticket-overlay fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn overflow-y-auto"
+    >
       <div 
-        className="relative w-full max-w-4xl my-auto bg-slate-100 dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-300 dark:border-slate-800 overflow-hidden flex flex-col"
+        className="ticket-dialog relative w-full max-w-4xl my-auto bg-slate-100 dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-300 dark:border-slate-800 overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Top Bar (Ẩn khi in ấn) */}
@@ -56,7 +69,7 @@ export default function ETicketModal({
             <button
               type="button"
               onClick={handlePrint}
-              className="px-3.5 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center gap-1.5 shadow transition active:scale-95"
+              className="px-3.5 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center gap-1.5 shadow transition active:scale-95 cursor-pointer"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>In vé / Lưu PDF</span>
@@ -65,7 +78,7 @@ export default function ETicketModal({
               type="button"
               onClick={onClose}
               aria-label="Đóng"
-              className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center transition"
+              className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center transition cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -73,29 +86,33 @@ export default function ETicketModal({
         </div>
 
         {/* ================= KHỐI VÉ ĐIỆN TỬ BOARDING PASS CHÍNH ================= */}
-        <div className="p-3 sm:p-6 overflow-y-auto max-h-[80vh] flex items-center justify-center">
+        <div className="ticket-scroll-area p-3 sm:p-6 overflow-y-auto max-h-[80vh] flex items-center justify-center">
           <div 
             id="printable-ticket" 
             ref={ticketRef}
-            className="w-full max-w-3xl bg-white text-slate-900 rounded-3xl shadow-xl border border-slate-200 overflow-hidden flex flex-col md:flex-row relative print:shadow-none print:border-none print:m-0"
+            className="w-full max-w-3xl bg-white text-slate-900 rounded-3xl shadow-xl border border-slate-200 overflow-hidden flex flex-col md:flex-row relative print:shadow-none print:m-0"
           >
             {/* PHẦN CHÍNH THÂN VÉ (MAIN TICKET - 70%) */}
-            <div className="flex-1 p-5 sm:p-7 flex flex-col justify-between border-b md:border-b-0 md:border-r border-dashed border-slate-300 relative">
+            <div className="ticket-main-body flex-1 p-5 sm:p-7 flex flex-col justify-between border-b md:border-b-0 md:border-r border-dashed border-slate-300 relative">
               {/* Header Thân Vé */}
               <div>
                 <div className="flex items-start justify-between gap-3 border-b border-slate-100 pb-3 mb-4">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
+                      <img 
+                        src="/soultrip-logo.png" 
+                        alt="SoulTrip" 
+                        className="w-7 h-7 rounded-lg object-cover" 
+                      />
                       <span className="font-serif font-black text-lg tracking-tight text-slate-950">
-                        SmartTour Platform
+                        SoulTrip Platform
                       </span>
                       <span className="text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
                         BOARDING PASS
                       </span>
                     </div>
-                    <span className="text-[10px] text-slate-400 uppercase tracking-widest block mt-0.5 font-medium">
-                      THE SOUL OF TRAVEL • TRAVEL BY MOOD
+                    <span className="text-[10px] text-slate-500 tracking-wider block mt-0.5 font-medium italic">
+                      “ TRAVEL WHERE YOUR SOUL LEADS “
                     </span>
                   </div>
 
@@ -142,7 +159,7 @@ export default function ETicketModal({
                   <div>
                     <span className="text-[10px] text-slate-400 uppercase font-semibold block">Mã đặt chỗ / PNR Code</span>
                     <span className="font-mono font-black text-sky-700 text-sm tracking-wider block">{bookingCode}</span>
-                    <span className="text-[10px] text-slate-400">SmartTour UTC2</span>
+                    <span className="text-[10px] text-slate-400">SoulTrip UTC2</span>
                   </div>
 
                   <div>
@@ -195,10 +212,10 @@ export default function ETicketModal({
             </div>
 
             {/* PHẦN CUỐNG VÉ XÉ RỜI (TEAR-OFF STUB - 30%) */}
-            <div className="w-full md:w-64 p-5 sm:p-6 bg-slate-50 flex flex-col items-center justify-between text-center relative">
+            <div className="ticket-stub w-full md:w-64 p-5 sm:p-6 bg-slate-50 flex flex-col items-center justify-between text-center relative">
               {/* Hai rãnh xé vé phong cách vé máy bay (Notch Cutouts) */}
-              <div className="hidden md:block absolute -left-3 -top-3 w-6 h-6 bg-slate-100 dark:bg-slate-900 rounded-full border border-slate-300 dark:border-slate-800"></div>
-              <div className="hidden md:block absolute -left-3 -bottom-3 w-6 h-6 bg-slate-100 dark:bg-slate-900 rounded-full border border-slate-300 dark:border-slate-800"></div>
+              <div className="ticket-notch hidden md:block absolute -left-3 -top-3 w-6 h-6 bg-slate-100 dark:bg-slate-900 rounded-full border border-slate-300 dark:border-slate-800"></div>
+              <div className="ticket-notch hidden md:block absolute -left-3 -bottom-3 w-6 h-6 bg-slate-100 dark:bg-slate-900 rounded-full border border-slate-300 dark:border-slate-800"></div>
 
               {/* Cuống vé Header */}
               <div className="w-full text-center pb-2 border-b border-slate-200">
@@ -246,12 +263,12 @@ export default function ETicketModal({
         {/* Modal Bottom Bar (Ẩn khi in ấn) */}
         <div className="print:hidden p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between">
           <span className="text-xs text-slate-500 dark:text-slate-400">
-            © 2026 SmartTour Platform • Vé điện tử hợp lệ theo quy chuẩn du lịch Việt Nam
+            © 2026 SoulTrip Platform • Vé điện tử hợp lệ theo quy chuẩn du lịch Việt Nam
           </span>
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 transition"
+            className="px-5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 transition cursor-pointer"
           >
             Đóng vé
           </button>
@@ -259,4 +276,8 @@ export default function ETicketModal({
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined'
+    ? createPortal(modalContent, document.body)
+    : modalContent;
 }

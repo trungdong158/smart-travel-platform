@@ -126,7 +126,7 @@ export default function CustomerBookingsPage() {
           </div>
           <h3 className="font-extrabold text-slate-800 dark:text-white text-base">Bạn chưa có đơn đặt tour nào</h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-            Khám phá những vùng đất mới và đặt tour ngay hôm nay để nhận ưu đãi đặc biệt từ SmartTour.
+            Khám phá những vùng đất mới và đặt tour ngay hôm nay để nhận ưu đãi đặc biệt từ SoulTrip.
           </p>
           <div className="pt-2">
             <Link

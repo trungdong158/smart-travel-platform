@@ -44,20 +44,20 @@ export default function PaymentModal({
   const seconds = String(timeLeft % 60).padStart(2, '0');
 
   const bookingCode = booking.bookingCode || `ST-${String(booking.id).slice(-6)}`;
-  const transferContent = `SMARTTOUR ${bookingCode}`;
+  const transferContent = `SOULTRIP ${bookingCode}`;
   const amountNumber = Number(booking.totalPrice) || 0;
 
   // Cấu hình Ngân hàng MBBank (Napas 247)
   const bankInfo = {
     bankName: 'MBBank (Ngân hàng Quân Đội)',
     accountNumber: '6651071010',
-    accountName: 'SMARTTOUR PLATFORM - UTC2'
+    accountName: 'SOULTRIP PLATFORM - UTC2'
   };
 
   // Cấu hình Ví MoMo
   const momoInfo = {
     phone: '0987654321',
-    accountName: 'SMARTTOUR PLATFORM'
+    accountName: 'SOULTRIP PLATFORM'
   };
 
   // URL VietQR chuẩn theo định dạng NAPAS 247
@@ -65,7 +65,7 @@ export default function PaymentModal({
   
   // Chuỗi mã hóa VietQR dự phòng offline
   const vietQrFallbackString = `2|99|${bankInfo.accountNumber}|${bankInfo.accountName}|MB|${amountNumber}|${transferContent}`;
-  const momoQrString = `2|99|${momoInfo.phone}|${momoInfo.accountName}|momo@smarttour.vn|0|0|${amountNumber}|${transferContent}|transfer_p2p`;
+  const momoQrString = `2|99|${momoInfo.phone}|${momoInfo.accountName}|momo@soultrip.vn|0|0|${amountNumber}|${transferContent}|transfer_p2p`;
 
   const copyToClipboard = (text, fieldName) => {
     try {

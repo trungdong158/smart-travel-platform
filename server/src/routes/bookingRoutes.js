@@ -3,9 +3,9 @@ const router = express.Router();
 const bookingController = require('../controllers/bookingController');
 const { authenticateToken, requireAdmin } = require('../middlewares/authMiddleware');
 
-// Công khai / Khách hàng đặt tour
+// Khách hàng đã đăng ký/đăng nhập đặt tour
 router.get('/', bookingController.getAllBookings);
-router.post('/', bookingController.createBooking);
+router.post('/', authenticateToken, bookingController.createBooking);
 
 // Khách hàng tự hủy đơn của chính mình khi chờ xử lý
 router.patch('/:id/cancel', bookingController.cancelBookingByCustomer);

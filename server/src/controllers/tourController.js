@@ -1,5 +1,16 @@
 const { tours, vouchers, saveTours } = require('../config/data');
 
+function removeVietnameseTones(str) {
+  if (!str) return '';
+  return str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'd')
+    .toLowerCase()
+    .trim();
+}
+
 /**
  * Lấy danh sách tour (hỗ trợ tìm kiếm, lọc và sắp xếp)
  */
@@ -7,45 +18,49 @@ const getAllTours = (req, res) => {
   const { search, region, category, mood, maxPrice, sortBy } = req.query;
   let results = [...tours];
 
-  if (search) {
-    const q = search.toLowerCase().trim();
-    const tokens = q.split(/\s+/).filter(Boolean);
+  if (search && search.trim()) {
+    const rawQ = search.toLowerCase().trim();
+    const normQ = removeVietnameseTones(search);
+    const compactQ = normQ.replace(/\s+/g, "");
+
     results = results.filter((t) => {
-      const fullSearchContent = [
-        t.title,
-        t.destination_name,
-        t.departure_location,
-        t.transport_included,
-        t.category_name,
-        t.region,
-        t.mood_id,
-        t.mood_label,
-        t.mood_tag,
-        t.emotional_quote,
-        t.itinerary_summary,
-        ...(t.highlights || []),
-        ...(t.itinerary_details || []).map((d) => `${d.title} ${d.description}`)
-      ].filter(Boolean).join(' ').toLowerCase();
+      const rawTitle = (t.title || "").toLowerCase();
+      const normTitle = removeVietnameseTones(t.title);
+      const compactTitle = normTitle.replace(/\s+/g, "");
+      const normDest = removeVietnameseTones(t.destination_name);
+      const compactDest = normDest.replace(/\s+/g, "");
 
-      // Khớp trực tiếp cả cụm từ HOẶC tất cả các từ khóa lẻ đều xuất hiện
-      return fullSearchContent.includes(q) || (tokens.length > 0 && tokens.every((tok) => fullSearchContent.includes(tok)));
+      // Tìm kiếm chính xác theo tiêu đề tour hoặc điểm đến (hỗ trợ có dấu, không dấu, viết liền)
+      const matchKeyword =
+        rawTitle.includes(rawQ) ||
+        normTitle.includes(normQ) ||
+        (compactQ.length >= 3 && compactTitle.includes(compactQ)) ||
+        normDest.includes(normQ) ||
+        (compactQ.length >= 3 && compactDest.includes(compactQ));
+
+      if (!matchKeyword) return false;
+
+      const matchRegion = region ? t.region === region : true;
+      const matchCategory = category ? t.category_name.toLowerCase() === category.toLowerCase() : true;
+      const matchMood = mood ? (t.mood_id === mood || (t.mood_label && t.mood_label.toLowerCase().includes(mood.toLowerCase()))) : true;
+      const matchPrice = maxPrice ? t.base_price <= Number(maxPrice) : true;
+
+      return matchRegion && matchCategory && matchMood && matchPrice;
     });
-  }
-
-  if (region) {
-    results = results.filter((t) => t.region === region);
-  }
-
-  if (mood) {
-    results = results.filter((t) => t.mood_id === mood || (t.mood_label && t.mood_label.toLowerCase().includes(mood.toLowerCase())));
-  }
-
-  if (category) {
-    results = results.filter((t) => t.category_name.toLowerCase() === category.toLowerCase());
-  }
-
-  if (maxPrice) {
-    results = results.filter((t) => t.base_price <= Number(maxPrice));
+  
+  } else {
+    if (region) {
+      results = results.filter((t) => t.region === region);
+    }
+    if (mood) {
+      results = results.filter((t) => t.mood_id === mood || (t.mood_label && t.mood_label.toLowerCase().includes(mood.toLowerCase())));
+    }
+    if (category) {
+      results = results.filter((t) => t.category_name.toLowerCase() === category.toLowerCase());
+    }
+    if (maxPrice) {
+      results = results.filter((t) => t.base_price <= Number(maxPrice));
+    }
   }
 
   // Sắp xếp

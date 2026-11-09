@@ -45,6 +45,15 @@ const createBooking = (req, res) => {
     });
   }
 
+  // Kiểm tra nếu số điện thoại là chữ hoặc có chữ trong đó
+  const cleanPhone = String(phone).trim();
+  if (/[a-zA-ZÀ-ỹ]/.test(cleanPhone)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Vui lòng nhập số điện thoại đúng định dạng.'
+    });
+  }
+
   const numSeats = Number(seats);
   const tour = tours.find((t) => t.id === Number(tourId));
 
@@ -68,6 +77,7 @@ const createBooking = (req, res) => {
   const newBooking = {
     id: bookingId,
     bookingCode,
+    userId: req.user?.id || null,
     tourId: tour.id,
     tourTitle: tourTitle || tour.title,
     customerName: customerName.trim(),
@@ -94,7 +104,7 @@ const createBooking = (req, res) => {
 
   return res.status(201).json({
     success: true,
-    message: 'Đặt tour thành công! SmartTour sẽ liên hệ xác nhận trong thời gian sớm nhất.',
+    message: 'Đặt tour thành công! SoulTrip sẽ liên hệ xác nhận trong thời gian sớm nhất.',
     data: newBooking
   });
 };

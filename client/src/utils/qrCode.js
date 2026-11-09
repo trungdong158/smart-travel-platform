@@ -679,7 +679,7 @@ export function formatTicketQRData(booking, tour) {
   }
 
   return [
-    `=== SMARTTOUR E-TICKET ===`,
+    `=== SOULTRIP E-TICKET ===`,
     `Ma ve: ${code}`,
     `Khach hang: ${name}`,
     phone ? `SDT: ${phone}` : null,

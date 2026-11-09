@@ -42,12 +42,16 @@ export const initialTours = [
       "Xe du lịch đời mới suốt hành trình"
     ],
     "departure_location": "TP. Hồ Chí Minh & Hà Nội",
-    "transport_included": "Vé máy bay khứ hồi",
+    "transport_included": "Vé máy bay & Xe du lịch",
     "transport_type": "FLIGHT",
     "mood_id": "romance",
     "mood_label": "Lãng Mạn & Hoài Niệm",
     "mood_tag": "#LãngMạn",
-    "emotional_quote": "Dạo bước dưới ánh đèn lồng phố Hội, để lòng lắng lại giữa vẻ đẹp thời gian."
+    "emotional_quote": "Dạo bước dưới ánh đèn lồng phố Hội, để lòng lắng lại giữa vẻ đẹp thời gian.",
+    "gallery": [
+      "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&w=1200&q=80",
+      "https://upload.wikimedia.org/wikipedia/commons/b/b9/Golden_Bridge_Da-Nang.jpg"
+    ]
   },
   {
     "id": 2,
@@ -87,12 +91,16 @@ export const initialTours = [
       "Resort 4-5 sao view biển"
     ],
     "departure_location": "TP. Hồ Chí Minh & Hà Nội",
-    "transport_included": "Vé máy bay khứ hồi",
+    "transport_included": "Vé máy bay & Cano 4 đảo",
     "transport_type": "FLIGHT",
     "mood_id": "romance",
     "mood_label": "Lãng Mạn & Hoài Niệm",
     "mood_tag": "#LãngMạn",
-    "emotional_quote": "Ngắm hoàng hôn nhuộm tím biển khơi Sunset Town bên người thương."
+    "emotional_quote": "Ngắm hoàng hôn nhuộm tím biển khơi Sunset Town bên người thương.",
+    "gallery": [
+      "https://images.unsplash.com/photo-1589394815804-964ed0be2eb5?auto=format&fit=crop&w=1200&q=80",
+      "https://upload.wikimedia.org/wikipedia/commons/5/58/Sunset-town-phu-quoc-1.jpg"
+    ]
   },
   {
     "id": 3,
@@ -132,12 +140,16 @@ export const initialTours = [
       "Thưởng thức lẩu cá hồi cá tầm Sa Pa"
     ],
     "departure_location": "Hà Nội",
-    "transport_included": "Xe Limousine cabin đôi VIP",
+    "transport_included": "Limousine cabin đôi VIP",
     "transport_type": "LIMOUSINE",
     "mood_id": "healing",
     "mood_label": "Chữa Lành & Tĩnh Tại",
     "mood_tag": "#ChữaLành",
-    "emotional_quote": "Chạm vào biển mây bồng bềnh, lắng nghe hơi thở trong lành của núi rừng Tây Bắc."
+    "emotional_quote": "Chạm vào biển mây bồng bềnh, lắng nghe hơi thở trong lành của núi rừng Tây Bắc.",
+    "gallery": [
+      "https://images.unsplash.com/photo-1570366583862-f91883984fde?auto=format&fit=crop&w=1200&q=80",
+      "https://upload.wikimedia.org/wikipedia/commons/7/70/Fansipan_Summit_3143m_aerial_view_Sa_Pa_Lao_Cai_Vietnam.jpg"
+    ]
   },
   {
     "id": 4,
@@ -182,12 +194,16 @@ export const initialTours = [
       "Bao trọn vé các điểm tham quan"
     ],
     "departure_location": "Hà Nội",
-    "transport_included": "Xe Limousine giường nằm VIP",
+    "transport_included": "Limousine giường nằm VIP",
     "transport_type": "LIMOUSINE",
     "mood_id": "adventure",
     "mood_label": "Bứt Phá & Phiêu Lưu",
     "mood_tag": "#PhiêuLưu",
-    "emotional_quote": "Chinh phục cung đèo huyền thoại, thấy bản thân thật tự do và kiên cường."
+    "emotional_quote": "Chinh phục cung đèo huyền thoại, thấy bản thân thật tự do và kiên cường.",
+    "gallery": [
+      "https://images.unsplash.com/photo-1670654534716-91f59fe06a26?auto=format&fit=crop&w=1200&q=80",
+      "https://upload.wikimedia.org/wikipedia/commons/4/44/To%C3%A0n_c%E1%BA%A3nh.jpg"
+    ]
   },
   {
     "id": 5,
@@ -222,12 +238,16 @@ export const initialTours = [
       "Khách sạn 4 sao view sông Hậu thơ mộng"
     ],
     "departure_location": "TP. Hồ Chí Minh",
-    "transport_included": "Xe Limousine du lịch VIP",
+    "transport_included": "Limousine du lịch cao cấp",
     "transport_type": "LIMOUSINE",
     "mood_id": "discovery",
     "mood_label": "Tự Do & Khám Phá",
     "mood_tag": "#TựDo",
-    "emotional_quote": "Đón bình minh rộn rã trên sông nước, cảm nhận nét đôn hậu bình dị của phương Nam."
+    "emotional_quote": "Đón bình minh rộn rã trên sông nước, cảm nhận nét đôn hậu bình dị của phương Nam.",
+    "gallery": [
+      "https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80",
+      "https://upload.wikimedia.org/wikipedia/commons/6/62/M%E1%BB%99t_c%E1%BA%A3nh_%E1%BB%9F_ch%E1%BB%A3_n%E1%BB%95i_C%C3%A1i_R%C4%83ng.jpg"
+    ]
   },
   {
     "id": 6,
@@ -238,7 +258,7 @@ export const initialTours = [
     "region": "Trung",
     "duration_days": 3,
     "base_price": 4490000,
-    "featured_image": "https://images.unsplash.com/photo-1583417319070-4a69db38a482?auto=format&fit=crop&w=1200&q=80",
+    "featured_image": "https://upload.wikimedia.org/wikipedia/commons/0/0e/Ngo_Mon.jpg",
     "available_seats": 10,
     "rating": 4.8,
     "review_count": 24,
@@ -267,12 +287,16 @@ export const initialTours = [
       "Hướng dẫn viên thuyết minh văn hóa lịch sử sâu sắc"
     ],
     "departure_location": "TP. Hồ Chí Minh & Hà Nội",
-    "transport_included": "Vé máy bay khứ hồi",
+    "transport_included": "Vé máy bay & Thuyền rồng",
     "transport_type": "FLIGHT",
     "mood_id": "romance",
     "mood_label": "Lãng Mạn & Hoài Niệm",
     "mood_tag": "#LãngMạn",
-    "emotional_quote": "Bản tình ca ngàn năm sông Hương và nét thâm trầm, đài các chốn hoàng thành."
+    "emotional_quote": "Bản tình ca ngàn năm sông Hương và nét thâm trầm, đài các chốn hoàng thành.",
+    "gallery": [
+      "https://upload.wikimedia.org/wikipedia/commons/0/0e/Ngo_Mon.jpg",
+      "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=1200&q=80"
+    ]
   },
   {
     "id": 7,
@@ -307,12 +331,16 @@ export const initialTours = [
       "Bao trọn vé thắng cảnh tham quan vịnh và bảo hiểm du lịch"
     ],
     "departure_location": "Hà Nội",
-    "transport_included": "Xe Limousine Dcar cao cấp",
+    "transport_included": "Limousine Dcar đưa đón",
     "transport_type": "LIMOUSINE",
     "mood_id": "discovery",
     "mood_label": "Tự Do & Khám Phá",
     "mood_tag": "#TựDo",
-    "emotional_quote": "Lướt du thuyền giữa ngàn đảo đá kỳ quan, đắm mình vào sắc ngọc bích của vịnh biển."
+    "emotional_quote": "Lướt du thuyền giữa ngàn đảo đá kỳ quan, đắm mình vào sắc ngọc bích của vịnh biển.",
+    "gallery": [
+      "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1200&q=80",
+      "https://upload.wikimedia.org/wikipedia/commons/2/2d/Halong_Bay_in_Vietnam.jpg"
+    ]
   },
   {
     "id": 8,
@@ -323,7 +351,7 @@ export const initialTours = [
     "region": "Trung",
     "duration_days": 4,
     "base_price": 5190000,
-    "featured_image": "https://images.unsplash.com/photo-1722944175475-6bbc2d6812c6?auto=format&fit=crop&w=1200&q=80",
+    "featured_image": "https://images.unsplash.com/photo-1668536495655-a0226ed8eb5d?auto=format&fit=crop&w=1200&q=80",
     "available_seats": 10,
     "rating": 4.9,
     "review_count": 31,
@@ -357,12 +385,16 @@ export const initialTours = [
       "Tặng bộ ảnh check-in cực phẩm tại Eo Gió và Ghềnh Đá Đĩa"
     ],
     "departure_location": "TP. Hồ Chí Minh & Hà Nội",
-    "transport_included": "Vé máy bay khứ hồi",
+    "transport_included": "Vé máy bay & Cano Kỳ Co",
     "transport_type": "FLIGHT",
     "mood_id": "discovery",
     "mood_label": "Tự Do & Khám Phá",
     "mood_tag": "#TựDo",
-    "emotional_quote": "Hoa vàng trên cỏ xanh và những làn gió biển phóng khoáng vỗ về tâm hồn."
+    "emotional_quote": "Hoa vàng trên cỏ xanh và những làn gió biển phóng khoáng vỗ về tâm hồn.",
+    "gallery": [
+      "https://images.unsplash.com/photo-1668536495655-a0226ed8eb5d?auto=format&fit=crop&w=1200&q=80",
+      "https://upload.wikimedia.org/wikipedia/commons/5/5d/G%C3%A0nh_%C4%90%C3%A1_%C4%90%C4%A9a.jpg"
+    ]
   },
   {
     "id": 9,
@@ -402,12 +434,16 @@ export const initialTours = [
       "Khách sạn hoặc villa phong cách Pháp lãng mạn"
     ],
     "departure_location": "TP. Hồ Chí Minh",
-    "transport_included": "Xe Limousine phòng nằm VIP",
+    "transport_included": "Limousine phòng nằm VIP",
     "transport_type": "LIMOUSINE",
     "mood_id": "healing",
     "mood_label": "Chữa Lành & Tĩnh Tại",
     "mood_tag": "#ChữaLành",
-    "emotional_quote": "Thả lỏng đôi vai trong sớm sương mù, tìm lại bình yên giữa bạt ngàn thông reo."
+    "emotional_quote": "Thả lỏng đôi vai trong sớm sương mù, tìm lại bình yên giữa bạt ngàn thông reo.",
+    "gallery": [
+      "https://images.unsplash.com/photo-1678099006439-dba9e4d3f9f5?auto=format&fit=crop&w=1200&q=80",
+      "https://upload.wikimedia.org/wikipedia/commons/d/d5/Tuyen_Lam_Lake_01.jpg"
+    ]
   },
   {
     "id": 10,
@@ -442,12 +478,16 @@ export const initialTours = [
       "Check-in rồng thiêng trên đỉnh Ngọa Long Hang Múa"
     ],
     "departure_location": "Hà Nội",
-    "transport_included": "Xe Limousine Dcar massage",
+    "transport_included": "Limousine Dcar massage",
     "transport_type": "LIMOUSINE",
     "mood_id": "healing",
     "mood_label": "Chữa Lành & Tĩnh Tại",
     "mood_tag": "#ChữaLành",
-    "emotional_quote": "Xuôi thuyền trên dòng nước trong vắt, tìm về miền tĩnh lặng nơi tâm thức."
+    "emotional_quote": "Xuôi thuyền trên dòng nước trong vắt, tìm về miền tĩnh lặng nơi tâm thức.",
+    "gallery": [
+      "https://images.unsplash.com/photo-1571406252288-cc9c25bb4a44?auto=format&fit=crop&w=1200&q=80",
+      "https://upload.wikimedia.org/wikipedia/commons/2/29/Trang_An_-_04.jpg"
+    ]
   },
   {
     "id": 11,
@@ -458,7 +498,7 @@ export const initialTours = [
     "region": "Trung",
     "duration_days": 3,
     "base_price": 3850000,
-    "featured_image": "https://images.unsplash.com/photo-1638793774283-8a7b52165430?auto=format&fit=crop&w=1200&q=80",
+    "featured_image": "https://upload.wikimedia.org/wikipedia/commons/9/9f/ThienDuongCave1.jpg",
     "available_seats": 12,
     "rating": 5,
     "review_count": 29,
@@ -487,12 +527,16 @@ export const initialTours = [
       "Khách sạn hoặc resort tiêu chuẩn 4 sao bên bờ sông Nhật Lệ"
     ],
     "departure_location": "Hà Nội & TP. Hồ Chí Minh",
-    "transport_included": "Xe giường nằm cao cấp",
+    "transport_included": "Tàu hỏa & Xe giường nằm",
     "transport_type": "LIMOUSINE",
     "mood_id": "adventure",
     "mood_label": "Bứt Phá & Phiêu Lưu",
     "mood_tag": "#PhiêuLưu",
-    "emotional_quote": "Bước vào lòng đất kỳ vĩ hàng triệu năm, vỡ òa trước kiệt tác của mẹ thiên nhiên."
+    "emotional_quote": "Bước vào lòng đất kỳ vĩ hàng triệu năm, vỡ òa trước kiệt tác của mẹ thiên nhiên.",
+    "gallery": [
+      "https://upload.wikimedia.org/wikipedia/commons/9/9f/ThienDuongCave1.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/d/d5/ThienDuongCave2.jpg"
+    ]
   },
   {
     "id": 12,
@@ -503,8 +547,8 @@ export const initialTours = [
     "region": "Trung",
     "duration_days": 3,
     "base_price": 3990000,
-    "featured_image": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
-    "available_seats": 15,
+    "featured_image": "https://upload.wikimedia.org/wikipedia/commons/c/c0/Nha_Trang_-_Vinpearl_Cable_Car.jpg",
+    "available_seats": 14,
     "rating": 4.8,
     "review_count": 39,
     "itinerary_summary": "Tận hưởng làn nước trong vắt vịnh Nha Trang, thư giãn tắm bùn khoáng nóng view biển tại Hòn Tằm và vui chơi không giới hạn tại công viên giải trí đảo VinWonders.",
@@ -532,12 +576,16 @@ export const initialTours = [
       "Khách sạn 4 sao nằm trên cung đường vàng biển Trần Phú"
     ],
     "departure_location": "TP. Hồ Chí Minh",
-    "transport_included": "Xe Limousine phòng nằm VIP",
+    "transport_included": "Limousine VIP & Tắm bùn",
     "transport_type": "LIMOUSINE",
     "mood_id": "discovery",
     "mood_label": "Tự Do & Khám Phá",
     "mood_tag": "#TựDo",
-    "emotional_quote": "Đón nắng vàng rực rỡ, lặn ngắm san hô và nạp đầy năng lượng tươi mới."
+    "emotional_quote": "Đón nắng vàng rực rỡ, lặn ngắm san hô và nạp đầy năng lượng tươi mới.",
+    "gallery": [
+      "https://upload.wikimedia.org/wikipedia/commons/c/c0/Nha_Trang_-_Vinpearl_Cable_Car.jpg",
+      "https://images.unsplash.com/photo-1532608861228-e677c2d62418?auto=format&fit=crop&w=1200&q=80"
+    ]
   },
   {
     "id": 13,
@@ -548,7 +596,7 @@ export const initialTours = [
     "region": "Nam",
     "duration_days": 2,
     "base_price": 2290000,
-    "featured_image": "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1200&q=80",
+    "featured_image": "https://upload.wikimedia.org/wikipedia/commons/2/2e/Vietnam%2C_Mui_Ne_sand_dune.jpg",
     "available_seats": 18,
     "rating": 4.7,
     "review_count": 27,
@@ -572,12 +620,16 @@ export const initialTours = [
       "Thưởng thức lẩu thả Phan Thiết và gỏi cá mai đặc sản miền cát"
     ],
     "departure_location": "TP. Hồ Chí Minh",
-    "transport_included": "Xe Limousine cao tốc VIP",
+    "transport_included": "Limousine & Jeep đồi cát",
     "transport_type": "LIMOUSINE",
     "mood_id": "adventure",
     "mood_label": "Bứt Phá & Phiêu Lưu",
     "mood_tag": "#PhiêuLưu",
-    "emotional_quote": "Lướt xe Jeep trên tiểu sa mạc cát trắng, cảm nhận sự tự do không giới hạn."
+    "emotional_quote": "Lướt xe Jeep trên tiểu sa mạc cát trắng, cảm nhận sự tự do không giới hạn.",
+    "gallery": [
+      "https://upload.wikimedia.org/wikipedia/commons/2/2e/Vietnam%2C_Mui_Ne_sand_dune.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/6/6d/Mui_Ne_Fairy_Stream.jpg"
+    ]
   },
   {
     "id": 14,
@@ -588,7 +640,7 @@ export const initialTours = [
     "region": "Bắc",
     "duration_days": 3,
     "base_price": 3350000,
-    "featured_image": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80",
+    "featured_image": "https://upload.wikimedia.org/wikipedia/commons/e/e8/M%C6%B0%E1%BB%9Dng_Thanh_Valley.jpg",
     "available_seats": 8,
     "rating": 4.9,
     "review_count": 22,
@@ -617,12 +669,16 @@ export const initialTours = [
       "Khách sạn trung tâm thành phố Điện Biên tiện nghi hiện đại"
     ],
     "departure_location": "Hà Nội",
-    "transport_included": "Xe Limousine giường nằm VIP",
+    "transport_included": "Limousine giường nằm VIP",
     "transport_type": "LIMOUSINE",
     "mood_id": "adventure",
     "mood_label": "Bứt Phá & Phiêu Lưu",
     "mood_tag": "#PhiêuLưu",
-    "emotional_quote": "Hành trình về miền ký ức hào hùng, nơi đất trời hòa quyện tráng lệ."
+    "emotional_quote": "Hành trình về miền ký ức hào hùng, nơi đất trời hòa quyện tráng lệ.",
+    "gallery": [
+      "https://upload.wikimedia.org/wikipedia/commons/e/e8/M%C6%B0%E1%BB%9Dng_Thanh_Valley.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/7/72/%C4%90%C3%A8o_Pha_%C4%90in_-_panoramio.jpg"
+    ]
   },
   {
     "id": 15,
@@ -633,7 +689,7 @@ export const initialTours = [
     "region": "Bắc",
     "duration_days": 3,
     "base_price": 3150000,
-    "featured_image": "https://images.unsplash.com/photo-1778381464338-61eea4779160?auto=format&fit=crop&w=1200&q=80",
+    "featured_image": "https://upload.wikimedia.org/wikipedia/commons/3/35/Th%C3%A1c_B%E1%BA%A3n_Gi%E1%BB%91c.jpg",
     "available_seats": 10,
     "rating": 5,
     "review_count": 33,
@@ -662,12 +718,16 @@ export const initialTours = [
       "Thưởng thức vịt quay 7 vị Cao Bằng và lợn sữa quay mắc mật"
     ],
     "departure_location": "Hà Nội",
-    "transport_included": "Xe Limousine cao cấp VIP",
+    "transport_included": "Limousine cao cấp VIP",
     "transport_type": "LIMOUSINE",
     "mood_id": "healing",
     "mood_label": "Chữa Lành & Tĩnh Tại",
     "mood_tag": "#ChữaLành",
-    "emotional_quote": "Ngắm dải lụa trắng xóa nơi biên cương, chạm vào vẻ nguyên sơ thuần khiết nhất."
+    "emotional_quote": "Ngắm dải lụa trắng xóa nơi biên cương, chạm vào vẻ nguyên sơ thuần khiết nhất.",
+    "gallery": [
+      "https://upload.wikimedia.org/wikipedia/commons/3/35/Th%C3%A1c_B%E1%BA%A3n_Gi%E1%BB%91c.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/0/00/Scenery_at_Ba_Be_Lake_-_Ba_Be_National_Park_-_Vietnam_-_03.jpg"
+    ]
   },
   {
     "id": 16,
@@ -712,6 +772,10 @@ export const initialTours = [
     "mood_id": "healing",
     "mood_label": "Chữa Lành & Tĩnh Tại",
     "mood_tag": "#ChữaLành",
-    "emotional_quote": "Lặng ngắm biển xanh ngút ngàn, tìm sự thanh thản và lắng đọng sâu lắng."
+    "emotional_quote": "Lặng ngắm biển xanh ngút ngàn, tìm sự thanh thản và lắng đọng sâu lắng.",
+    "gallery": [
+      "https://images.unsplash.com/photo-1597261097497-d4ee2cec1265?auto=format&fit=crop&w=1200&q=80",
+      "https://upload.wikimedia.org/wikipedia/commons/3/3d/C%C3%B4n_%C4%90%E1%BA%A3o_National_Park.jpg"
+    ]
   }
 ];

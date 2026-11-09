@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
-  Compass, Heart, User, LayoutDashboard, LogOut, Menu, X, 
-  CalendarClock, ChevronDown, Sun, Moon, Sparkles 
+  Heart, User, LayoutDashboard, LogOut, Menu, X, 
+  CalendarClock, ChevronDown, Sun, Moon 
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useWishlist } from '../context/WishlistContext';
@@ -37,26 +37,23 @@ export default function Navbar() {
     <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 shadow-sm transition-colors duration-250">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2 lg:gap-4">
         
-        {/* Logo Mang Bản Sắc Riêng: The Soul of Travel */}
+        {/* Brand: SoulTrip */}
         <Link 
           to="/" 
           onClick={() => setMobileMenuOpen(false)}
-          className="flex items-center gap-2.5 group shrink-0"
+          className="flex items-center gap-2.5 group shrink-0 py-1"
         >
-          <div className="p-2 bg-gradient-to-tr from-amber-500 via-orange-500 to-sky-600 text-white rounded-2xl shadow-md group-hover:scale-105 transition-transform duration-200 shrink-0">
-            <Compass className="w-5 h-5 animate-[spin_12s_linear_infinite]" />
-          </div>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-xl font-black bg-gradient-to-r from-amber-500 via-orange-500 to-sky-600 dark:from-amber-400 dark:via-orange-400 dark:to-sky-300 bg-clip-text text-transparent tracking-tight whitespace-nowrap">
-                SmartTour
-              </span>
-              <span className="hidden lg:inline-block text-[9px] font-black uppercase tracking-wider text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-1.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-800 whitespace-nowrap shrink-0">
-                The Soul of Travel
-              </span>
-            </div>
-            <span className="hidden xl:block text-[10px] text-slate-400 dark:text-slate-500 font-medium tracking-tight -mt-0.5 whitespace-nowrap">
-              Travel by Mood • Đi theo cảm xúc
+          <img 
+            src="/soultrip-logo.png" 
+            alt="SoulTrip Logo" 
+            className="w-10 h-10 rounded-xl object-cover shadow-sm group-hover:scale-105 transition-transform duration-200 shrink-0 border border-sky-200/60 dark:border-slate-700/80" 
+          />
+          <div className="flex flex-col justify-center">
+            <span className="text-xl font-black bg-gradient-to-r from-sky-600 via-indigo-600 to-amber-500 dark:from-sky-400 dark:via-indigo-300 dark:to-amber-300 bg-clip-text text-transparent tracking-tight whitespace-nowrap leading-tight">
+              SoulTrip
+            </span>
+            <span className="block text-[10px] text-slate-500 dark:text-slate-400 font-medium italic tracking-tight whitespace-nowrap -mt-0.5">
+              “ Travel Where Your Soul Leads “
             </span>
           </div>
         </Link>
@@ -66,15 +63,7 @@ export default function Navbar() {
           <Link to="/" className="hover:text-amber-600 dark:hover:text-amber-400 transition whitespace-nowrap shrink-0">Trang chủ</Link>
           <Link to="/tours" className="hover:text-amber-600 dark:hover:text-amber-400 transition whitespace-nowrap shrink-0">Khám phá tour</Link>
           
-          {/* Nét riêng: Travel by Mood */}
-          <Link 
-            to="/tours?mood=healing" 
-            className="hover:text-amber-600 dark:hover:text-amber-400 transition flex items-center gap-1.5 text-amber-700 dark:text-amber-300 bg-amber-50/80 dark:bg-amber-950/50 px-3 py-1 rounded-full border border-amber-200/80 dark:border-amber-800/60 text-xs font-bold shadow-xs hover:shadow-sm whitespace-nowrap shrink-0"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            <span>Travel by Mood</span>
-          </Link>
-          
+
           {/* Chỉ khách hàng thông thường mới cần nút Tour của tôi trên thanh điều hướng chính */}
           {isAuthenticated && !isAdmin && (
             <Link to="/my-bookings" className="hover:text-sky-600 dark:hover:text-sky-400 transition flex items-center gap-1.5 whitespace-nowrap shrink-0">
@@ -184,7 +173,7 @@ export default function Navbar() {
                       <p className="font-bold text-slate-900 dark:text-white truncate">{currentUser.fullName}</p>
                       <p className="text-slate-400 dark:text-slate-500 text-[11px] truncate">{currentUser.email}</p>
                       <span className="inline-block mt-0.5 text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300">
-                        {currentUser.role === 'ADMIN' ? 'Quản Trị Viên' : 'Thành Viên SmartTour'}
+                        {currentUser.role === 'ADMIN' ? 'Quản Trị Viên' : 'Thành Viên SoulTrip'}
                       </span>
                     </div>
                   </div>
@@ -328,14 +317,7 @@ export default function Navbar() {
             >
               Khám phá tour
             </Link>
-            <Link 
-              to="/tours?mood=healing" 
-              onClick={() => setMobileMenuOpen(false)}
-              className="py-2 text-amber-700 dark:text-amber-300 flex items-center gap-2 font-bold"
-            >
-              <Sparkles className="w-4 h-4 text-amber-500" />
-              <span>Travel by Mood (Đi theo cảm xúc)</span>
-            </Link>
+
             <Link 
               to="/wishlist" 
               onClick={() => setMobileMenuOpen(false)}

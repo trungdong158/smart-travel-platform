@@ -1,4 +1,4 @@
-import { Compass, Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, Phone, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function Footer() {
@@ -9,19 +9,23 @@ export default function Footer() {
           
           {/* Cột 1: Thông tin thương hiệu & Dự án */}
           <div className="space-y-3 md:col-span-1">
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 bg-gradient-to-tr from-amber-500 to-sky-600 text-white rounded-xl shadow-xs">
-                <Compass className="w-5 h-5" />
+            <div className="flex items-center gap-2.5">
+              <img 
+                src="/soultrip-logo.png" 
+                alt="SoulTrip Logo" 
+                className="w-8 h-8 rounded-lg object-cover border border-slate-700 shrink-0" 
+              />
+              <div>
+                <span className="text-lg font-black tracking-tight text-white block leading-none">
+                  SoulTrip
+                </span>
+                <span className="text-[10px] text-amber-400 font-medium italic">
+                  “ Travel Where Your Soul Leads “
+                </span>
               </div>
-              <span className="text-lg font-black tracking-tight text-white">
-                SmartTour
-              </span>
-              <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/20">
-                The Soul of Travel
-              </span>
             </div>
             <p className="text-slate-400 text-xs leading-relaxed">
-              Nền tảng du lịch khơi nguồn cảm hứng theo triết lý <b>“Travel by Mood – Đi đâu theo cảm xúc, trải nghiệm theo cách riêng của bạn”</b>.
+              Nền tảng du lịch khơi nguồn cảm hứng theo triết lý <b>“Travel Where Your Soul Leads – Đi đâu theo cảm xúc, trải nghiệm theo cách riêng của bạn”</b>.
             </p>
             <div className="pt-1 text-[11px] text-amber-400 font-medium">
               Đồ Án Môn Học: Thiết Kế Web Thực Tế
@@ -62,7 +66,7 @@ export default function Footer() {
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-sky-400 shrink-0" />
-                <span>Email: contact@smarttour.vn</span>
+                <span>Email: contact@soultrip.vn</span>
               </div>
               <div className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
@@ -74,7 +78,7 @@ export default function Footer() {
 
         {/* Bản quyền */}
         <div className="text-center text-slate-500 text-[11px]">
-          <p>© 2026 SmartTour Platform. Xây dựng vì mục tiêu trải nghiệm du lịch thông minh, tiện lợi - Thiết kế bởi nhóm sinh viên UTC2.</p>
+          <p>© 2026 SoulTrip Platform. Travel Where Your Soul Leads - Thiết kế bởi nhóm sinh viên UTC2.</p>
         </div>
       </div>
     </footer>

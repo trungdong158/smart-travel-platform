@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Filter, Search, RotateCcw, Compass, ArrowUpDown, Sparkles, X } from 'lucide-react';
 import TourCard from '../components/TourCard';
-import { formatVND } from '../utils/format';
+import { formatVND, removeVietnameseTones } from '../utils/format';
 import { TRAVEL_MOODS, getMoodById } from '../utils/moods';
 
 export default function TourListingPage({ tours = [] }) {
@@ -38,45 +38,48 @@ export default function TourListingPage({ tours = [] }) {
     return Array.from(set);
   }, [tours]);
 
-  // Bộ lọc kết quả thông minh: hỗ trợ tìm theo từ khóa, vùng miền, danh mục, giá và TÂM TRẠNG (TRAVEL BY MOOD)
+  // Bộ lọc kết quả thông minh: hỗ trợ tìm theo từ khóa, vùng miền, danh mục, giá và tâm trạng
   const filteredTours = useMemo(() => {
     return tours
       .filter((tour) => {
-        const matchKeyword = (() => {
-          if (!keyword) return true;
-          const q = keyword.toLowerCase().trim();
-          const tokens = q.split(/\s+/).filter(Boolean);
-          const fullSearchContent = [
-            tour.title,
-            tour.destination_name,
-            tour.departure_location,
-            tour.transport_included,
-            tour.category_name,
-            tour.region,
-            tour.mood_id,
-            tour.mood_label,
-            tour.mood_tag,
-            tour.emotional_quote,
-            tour.itinerary_summary,
-            ...(tour.highlights || []),
-            ...(tour.itinerary_details || []).map((d) => `${d.title} ${d.description}`)
-          ].filter(Boolean).join(' ').toLowerCase();
+        // 1. Kiểm tra từ khóa tìm kiếm: nếu nhập cụm từ thì phải có trong tên hoặc điểm đến của tour
+        if (keyword && keyword.trim()) {
+          const normQ = removeVietnameseTones(keyword);
+          const compactQ = normQ.replace(/\s+/g, '');
 
-          return fullSearchContent.includes(q) || (tokens.length > 0 && tokens.every((tok) => fullSearchContent.includes(tok)));
-        })();
+          const normTitle = removeVietnameseTones(tour.title);
+          const compactTitle = normTitle.replace(/\s+/g, '');
 
+          const normDest = removeVietnameseTones(tour.destination_name);
+          const compactDest = normDest.replace(/\s+/g, '');
+
+          const isMatch =
+            normTitle.includes(normQ) ||
+            compactTitle.includes(compactQ) ||
+            normDest.includes(normQ) ||
+            compactDest.includes(compactQ);
+
+          if (!isMatch) {
+            return false;
+          }
+
+          // Khi đã có từ khóa tìm kiếm, chỉ lọc thêm vùng miền nếu người dùng chủ động chọn
+          return region ? tour.region === region : true;
+        }
+
+        // 2. Bộ lọc phụ khi không nhập từ khóa tìm kiếm
         const matchRegion = region ? tour.region === region : true;
         const matchCategory = category ? tour.category_name === category : true;
         const matchPrice = tour.base_price <= maxPrice;
         const matchMood = mood ? tour.mood_id === mood : true;
 
-        return matchKeyword && matchRegion && matchCategory && matchPrice && matchMood;
+        return matchRegion && matchCategory && matchPrice && matchMood;
       })
       .sort((a, b) => {
         if (sortBy === 'price-asc') return a.base_price - b.base_price;
         if (sortBy === 'price-desc') return b.base_price - a.base_price;
         if (sortBy === 'rating') return (b.rating || 5.0) - (a.rating || 5.0);
-        return 0; // default
+        return 0;
       });
   }, [tours, keyword, region, category, maxPrice, mood, sortBy]);
 
@@ -97,7 +100,7 @@ export default function TourListingPage({ tours = [] }) {
         <div>
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
             <Sparkles className="w-4 h-4" />
-            <span>The Soul of Travel</span>
+            <span>Travel Where Your Soul Leads</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-serif font-black text-slate-900 dark:text-white mt-1">
             Khám Phá Hành Trình Của Bạn

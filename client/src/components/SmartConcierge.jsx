@@ -10,7 +10,7 @@ export default function SmartConcierge({ tours = [] }) {
     {
       id: 1,
       sender: 'bot',
-      text: 'Xin chào! Tôi là Trợ lý Cảm Xúc & Du Lịch SmartTour — "Travel by Mood". Hôm nay bạn đang cảm thấy thế nào và muốn trải nghiệm điều gì? (Ví dụ: "tôi cần một nơi yên tĩnh để chữa lành", "chuyến đi lãng mạn cùng người yêu", hay "tour mạo hiểm bứt phá").',
+      text: 'Xin chào! Tôi là Trợ lý Cảm Xúc & Du Lịch SoulTrip — “Travel Where Your Soul Leads”. Hôm nay bạn đang cảm thấy thế nào và muốn trải nghiệm điều gì? (Ví dụ: "tôi cần một nơi yên tĩnh để chữa lành", "chuyến đi lãng mạn cùng người yêu", hay "tour mạo hiểm bứt phá").',
       recommendations: []
     }
   ]);
@@ -41,7 +41,7 @@ export default function SmartConcierge({ tours = [] }) {
     let matches = [...tours];
     let customBotReply = '';
 
-    // Lọc theo Cảm xúc (Travel by Mood)
+    // Gợi ý theo sở thích du lịch
     if (q.includes('chữa lành') || q.includes('bình yên') || q.includes('tĩnh tại') || q.includes('mệt mỏi') || q.includes('yên tĩnh')) {
       matches = matches.filter((t) => t.mood_id === 'healing');
       customBotReply = '🌿 Tôi hiểu bạn đang cần một khoảng lặng để nạp lại năng lượng. Dưới đây là những hành trình bình yên giữa đại ngàn và non nước để xoa dịu tâm hồn:';
@@ -174,7 +174,7 @@ export default function SmartConcierge({ tours = [] }) {
           className="group flex items-center gap-2.5 px-4 py-3 bg-gradient-to-r from-amber-500 via-orange-500 to-rose-600 text-white rounded-full shadow-2xl hover:shadow-orange-500/40 hover:scale-105 active:scale-95 transition-all duration-300"
           aria-label="Mở Trợ lý AI"
         >
-          <Sparkles className="w-5 h-5 text-amber-200 animate-pulse" />
+          <Sparkles className="w-5 h-5 text-amber-200 group-hover:animate-pulse" />
           <span className="text-xs sm:text-sm font-bold tracking-wide">Travel by Mood AI</span>
         </button>
       )}
@@ -191,8 +191,8 @@ export default function SmartConcierge({ tours = [] }) {
               </div>
               <div>
                 <h3 className="text-sm font-black flex items-center gap-1.5">
-                  <span>SmartTour AI</span>
-                  <span className="text-[10px] font-normal opacity-90">• Travel by Mood</span>
+                  <span>SoulTrip AI</span>
+                  <span className="text-[10px] font-normal opacity-90">• Travel Where Your Soul Leads</span>
                 </h3>
                 <span className="text-[10px] text-amber-100 flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Lắng nghe cảm xúc 24/7

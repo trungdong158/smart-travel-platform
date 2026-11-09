@@ -1,17 +1,30 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { 
   MapPin, Clock, ShieldCheck, CheckCircle2, Star, Users, 
-  Calendar, Tag, ChevronRight, MessageSquare, Send,
-  Plane, Bus, Navigation, Quote
+  Calendar, Tag, ChevronRight, ChevronLeft, MessageSquare, Send,
+  Plane, Bus, Navigation, Quote, Camera
 } from 'lucide-react';
 import { formatVND } from '../utils/format';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { tourService, bookingService } from '../services/api';
 import { getMoodById } from '../utils/moods';
-import PaymentModal from '../components/PaymentModal';
-import ETicketModal from '../components/ETicketModal';
+import { validatePhoneNumber } from '../utils/validation';
+
+// Lazy-load các modal thanh toán & vé điện tử để tối ưu 100% tốc độ tải trang ban đầu
+const PaymentModal = lazy(() => import('../components/PaymentModal'));
+const ETicketModal = lazy(() => import('../components/ETicketModal'));
+
+// Helper tối ưu kích thước ảnh Unsplash theo màn hình
+const getOptimizedImgUrl = (url, width = 1000, quality = 75) => {
+  if (!url) return '';
+  if (url.includes('images.unsplash.com')) {
+    const base = url.split('?')[0];
+    return `${base}?auto=format&fit=crop&w=${width}&q=${quality}`;
+  }
+  return url;
+};
 
 export default function TourDetailPage({ tours = [], onBookingCreated }) {
   const { id } = useParams();
@@ -21,6 +34,28 @@ export default function TourDetailPage({ tours = [], onBookingCreated }) {
   const tourId = Number(id);
   const currentTour = tours.find((t) => t.id === tourId) || tours[0];
   const mood = getMoodById(currentTour?.mood_id);
+
+  // Slider hình ảnh của chuyến đi (2 -> 3 ảnh)
+  const galleryImages = (currentTour?.gallery && Array.isArray(currentTour.gallery) && currentTour.gallery.length > 0)
+    ? currentTour.gallery
+    : [currentTour?.featured_image || 'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1200&q=80'];
+
+  const [activeImgIndex, setActiveImgIndex] = useState(0);
+  const [prevTourId, setPrevTourId] = useState(tourId);
+
+  // Reset về ảnh đầu tiên khi chuyển tour mà không gây cascading render
+  if (prevTourId !== tourId) {
+    setPrevTourId(tourId);
+    setActiveImgIndex(0);
+  }
+
+  const handlePrevImg = () => {
+    setActiveImgIndex((prev) => (prev > 0 ? prev - 1 : galleryImages.length - 1));
+  };
+
+  const handleNextImg = () => {
+    setActiveImgIndex((prev) => (prev < galleryImages.length - 1 ? prev + 1 : 0));
+  };
 
   // Luôn tự động cuộn lên đầu trang khi vào trang chi tiết tour
   useEffect(() => {
@@ -40,8 +75,23 @@ export default function TourDetailPage({ tours = [], onBookingCreated }) {
   });
   const [customerName, setCustomerName] = useState(() => currentUser?.fullName || '');
   const [phone, setPhone] = useState(() => currentUser?.phone || '');
+  const [phoneError, setPhoneError] = useState('');
   const [email, setEmail] = useState(() => currentUser?.email || '');
   const [note, setNote] = useState('');
+
+  // Kiểm tra số điện thoại khi người dùng nhập xong và chuyển sang ô khác (blur)
+  const handlePhoneBlur = () => {
+    if (phone && phone.trim()) {
+      const res = validatePhoneNumber(phone, true);
+      if (!res.isValid) {
+        setPhoneError('Vui lòng nhập số điện thoại đúng định dạng.');
+      } else {
+        setPhoneError('');
+      }
+    } else {
+      setPhoneError('');
+    }
+  };
 
   // Voucher state
   const [voucherCode, setVoucherCode] = useState('');
@@ -101,6 +151,22 @@ export default function TourDetailPage({ tours = [], onBookingCreated }) {
   // Xử lý submit đặt tour
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
+
+    // Bắt buộc đăng ký / đăng nhập tài khoản trước khi đặt tour
+    if (!isAuthenticated) {
+      showToast('Vui lòng đăng ký/đăng nhập tài khoản.', 'error');
+      openAuthModal();
+      return;
+    }
+
+    // Kiểm tra định dạng số điện thoại
+    const phoneValidation = validatePhoneNumber(phone, true);
+    if (!phoneValidation.isValid) {
+      setPhoneError('Vui lòng nhập số điện thoại đúng định dạng.');
+      showToast('Vui lòng nhập số điện thoại đúng định dạng.', 'error');
+      return;
+    }
+
     if (currentTour.available_seats < seats) {
       showToast(`Rất tiếc, tour chỉ còn ${currentTour.available_seats} chỗ trống!`, 'error');
       return;
@@ -272,17 +338,120 @@ export default function TourDetailPage({ tours = [], onBookingCreated }) {
         {/* CỘT TRÁI: ẢNH + LỊCH TRÌNH + TIỆN ÍCH + REVIEWS */}
         <div className="lg:col-span-2 space-y-8">
           
-          {/* Ảnh đại diện */}
-          <div className="relative aspect-[16/9] w-full rounded-3xl overflow-hidden shadow-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-800">
-            <img
-              src={currentTour.featured_image}
-              alt={currentTour.title}
-              onError={(e) => {
-                e.currentTarget.onerror = null;
-                e.currentTarget.src = 'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1200&q=80';
-              }}
-              className="w-full h-full object-cover"
-            />
+          {/* Slider hình ảnh của chuyến đi (2 -> 3 ảnh với nút lướt qua lại) */}
+          <div className="space-y-3">
+            <div className="relative aspect-[16/9] w-full rounded-3xl overflow-hidden shadow-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 group select-none">
+              {/* Ảnh đang hiển thị */}
+              <img
+                key={activeImgIndex}
+                src={getOptimizedImgUrl(galleryImages[activeImgIndex], 1000, 75)}
+                srcSet={
+                  galleryImages[activeImgIndex]?.includes('images.unsplash.com')
+                    ? `${getOptimizedImgUrl(galleryImages[activeImgIndex], 600, 70)} 600w, ${getOptimizedImgUrl(galleryImages[activeImgIndex], 1000, 75)} 1000w`
+                    : undefined
+                }
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 700px, 900px"
+                alt={`${currentTour.title} - Ảnh ${activeImgIndex + 1}`}
+                width="1200"
+                height="675"
+                loading={activeImgIndex === 0 ? "eager" : "lazy"}
+                fetchPriority={activeImgIndex === 0 ? "high" : "auto"}
+                decoding="async"
+                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  const fallback = galleryImages.find((img) => img && img !== e.currentTarget.src) || 'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1200&q=80';
+                  e.currentTarget.src = fallback;
+                }}
+                className="w-full h-full object-cover transition-all duration-500"
+              />
+
+              {/* Lớp phủ gradient nhẹ */}
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-black/15 pointer-events-none"></div>
+
+              {/* Nút mũi tên Trái & Phải để lướt qua lại giữa các ảnh */}
+              {galleryImages.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={handlePrevImg}
+                    aria-label="Lướt sang ảnh trước"
+                    className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-slate-950/60 hover:bg-slate-950/90 text-white flex items-center justify-center backdrop-blur-md border border-white/20 shadow-lg hover:scale-105 active:scale-95 transition-all z-10"
+                  >
+                    <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleNextImg}
+                    aria-label="Lướt sang ảnh tiếp theo"
+                    className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-slate-950/60 hover:bg-slate-950/90 text-white flex items-center justify-center backdrop-blur-md border border-white/20 shadow-lg hover:scale-105 active:scale-95 transition-all z-10"
+                  >
+                    <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+                  </button>
+                </>
+              )}
+
+              {/* Huy hiệu đếm ảnh: ví dụ 1 / 3 */}
+              <div className="absolute top-4 right-4 px-3 py-1 bg-slate-950/70 backdrop-blur-md text-white text-xs font-bold rounded-full border border-white/20 shadow-sm flex items-center gap-1.5 z-10">
+                <Camera className="w-3.5 h-3.5 text-amber-400" />
+                <span>{activeImgIndex + 1} / {galleryImages.length}</span>
+              </div>
+
+              {/* Chấm chỉ báo số trang ảnh (Dots) */}
+              {galleryImages.length > 1 && (
+                <div className="absolute bottom-4 inset-x-0 flex items-center justify-center gap-2 z-10">
+                  {galleryImages.map((_, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setActiveImgIndex(idx)}
+                      aria-label={`Chuyển đến ảnh ${idx + 1}`}
+                      className={`h-2 rounded-full transition-all duration-300 ${
+                        idx === activeImgIndex 
+                          ? 'w-7 bg-amber-400 shadow-md shadow-amber-400/50' 
+                          : 'w-2 bg-white/60 hover:bg-white'
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Hàng ảnh thu nhỏ (Thumbnails) bấm để chuyển nhanh */}
+            {galleryImages.length > 1 && (
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                {galleryImages.map((imgUrl, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setActiveImgIndex(idx)}
+                    aria-label={`Xem ảnh thu nhỏ ${idx + 1}`}
+                    className={`relative aspect-[16/10] rounded-2xl overflow-hidden border-2 transition-all ${
+                      idx === activeImgIndex
+                        ? 'border-amber-500 ring-2 ring-amber-500/40 scale-[1.02]'
+                        : 'border-slate-200 dark:border-slate-800 opacity-70 hover:opacity-100 hover:scale-[1.01]'
+                    }`}
+                  >
+                    <img
+                      src={imgUrl}
+                      alt={`Thumbnail ${idx + 1}`}
+                      width="200"
+                      height="125"
+                      referrerPolicy="no-referrer"
+                      loading="lazy"
+                      decoding="async"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        const fallback = galleryImages.find((img) => img && img !== e.currentTarget.src) || 'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1200&q=80';
+                        e.currentTarget.src = fallback;
+                      }}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Điểm nổi bật (Highlights) */}
@@ -567,30 +736,34 @@ export default function TourDetailPage({ tours = [], onBookingCreated }) {
               </div>
             ) : (
               /* Form đặt tour */
-              <form onSubmit={handleBookingSubmit} className="space-y-4">
+              <form key={currentUser?.id || 'guest'} onSubmit={handleBookingSubmit} className="space-y-4">
                 
-                {/* Gợi ý đăng nhập nếu là Guest */}
+                {/* Yêu cầu đăng nhập tài khoản để đặt tour */}
                 {!isAuthenticated && (
-                  <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 rounded-2xl text-xs text-amber-800 dark:text-amber-300 flex justify-between items-center">
-                    <span>Đã có tài khoản?</span>
+                  <div className="p-3.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-2xl text-xs text-amber-900 dark:text-amber-200 flex justify-between items-center gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0"></span>
+                      <span>Vui lòng đăng ký/đăng nhập tài khoản để đặt tour.</span>
+                    </div>
                     <button
                       type="button"
                       onClick={openAuthModal}
-                      className="font-bold underline text-amber-900 dark:text-amber-200"
+                      className="font-bold text-xs bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-xl transition shrink-0 shadow-xs"
                     >
-                      Đăng nhập để tự điền
+                      Đăng nhập / Đăng ký
                     </button>
                   </div>
                 )}
 
                 {/* Chọn ngày khởi hành */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  <label htmlFor="booking-departure-date" className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Ngày khởi hành dự kiến <span className="text-rose-500">*</span>
                   </label>
                   <div className="relative flex items-center">
                     <Calendar className="w-4 h-4 text-slate-400 absolute left-3.5" />
                     <input
+                      id="booking-departure-date"
                       type="date"
                       required
                       value={departureDate}
@@ -608,6 +781,7 @@ export default function TourDetailPage({ tours = [], onBookingCreated }) {
                   <div className="flex items-center gap-3">
                     <button
                       type="button"
+                      aria-label="Giảm số lượng vé"
                       onClick={() => setSeats(Math.max(1, seats - 1))}
                       className="w-9 h-9 rounded-xl border border-slate-200 dark:border-slate-700 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 transition"
                     >
@@ -616,6 +790,7 @@ export default function TourDetailPage({ tours = [], onBookingCreated }) {
                     <span className="font-extrabold text-sm w-8 text-center text-slate-900 dark:text-white">{seats}</span>
                     <button
                       type="button"
+                      aria-label="Tăng số lượng vé"
                       onClick={() => setSeats(Math.min(currentTour.available_seats, seats + 1))}
                       className="w-9 h-9 rounded-xl border border-slate-200 dark:border-slate-700 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 transition"
                     >
@@ -629,10 +804,11 @@ export default function TourDetailPage({ tours = [], onBookingCreated }) {
 
                 {/* Họ tên */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  <label htmlFor="booking-customer-name" className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Họ và tên khách hàng <span className="text-rose-500">*</span>
                   </label>
                   <input
+                    id="booking-customer-name"
                     type="text"
                     required
                     placeholder="Nguyễn Văn A"
@@ -644,25 +820,40 @@ export default function TourDetailPage({ tours = [], onBookingCreated }) {
 
                 {/* Điện thoại */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  <label htmlFor="booking-customer-phone" className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Số điện thoại liên hệ <span className="text-rose-500">*</span>
                   </label>
                   <input
+                    id="booking-customer-phone"
                     type="tel"
                     required
                     placeholder="0912 345 678"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="w-full px-3.5 py-2 text-xs border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:outline-none focus:border-sky-500"
+                    onChange={(e) => {
+                      setPhone(e.target.value);
+                      if (phoneError) setPhoneError('');
+                    }}
+                    onBlur={handlePhoneBlur}
+                    className={`w-full px-3.5 py-2 text-xs border ${
+                      phoneError
+                        ? 'border-rose-400 focus:border-rose-500 focus:ring-1 focus:ring-rose-200 dark:focus:ring-rose-950/40'
+                        : 'border-slate-200 dark:border-slate-700 focus:border-sky-500'
+                    } bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl focus:outline-none transition`}
                   />
+                  {phoneError && (
+                    <span className="text-[11px] text-rose-500 font-medium mt-1 block">
+                      {phoneError}
+                    </span>
+                  )}
                 </div>
 
                 {/* Email */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  <label htmlFor="booking-customer-email" className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Email nhận vé & xác nhận <span className="text-rose-500">*</span>
                   </label>
                   <input
+                    id="booking-customer-email"
                     type="email"
                     required
                     placeholder="name@example.com"
@@ -674,8 +865,9 @@ export default function TourDetailPage({ tours = [], onBookingCreated }) {
 
                 {/* Ghi chú */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Yêu cầu đặc biệt</label>
+                  <label htmlFor="booking-customer-note" className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Yêu cầu đặc biệt</label>
                   <input
+                    id="booking-customer-note"
                     type="text"
                     placeholder="Phòng gia đình, ăn chay, đón sân bay..."
                     value={note}
@@ -686,12 +878,13 @@ export default function TourDetailPage({ tours = [], onBookingCreated }) {
 
                 {/* Mã Voucher giảm giá thông minh */}
                 <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1">
+                  <label htmlFor="booking-voucher-code" className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1">
                     <Tag className="w-3.5 h-3.5 text-orange-500" />
                     Mã Giảm Giá Thông Minh
                   </label>
                   <div className="flex gap-2">
                     <input
+                      id="booking-voucher-code"
                       type="text"
                       placeholder="Nhập: SMART2026"
                       value={voucherCode}
@@ -752,7 +945,14 @@ export default function TourDetailPage({ tours = [], onBookingCreated }) {
 
                 {/* Nút submit */}
                 <button
-                  type="submit"
+                  type={isAuthenticated ? 'submit' : 'button'}
+                  onClick={(e) => {
+                    if (!isAuthenticated) {
+                      e.preventDefault();
+                      showToast('Vui lòng đăng ký/đăng nhập tài khoản.', 'error');
+                      openAuthModal();
+                    }
+                  }}
                   disabled={isSubmitting || currentTour.available_seats === 0}
                   className="w-full py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-extrabold rounded-2xl shadow-lg shadow-orange-500/25 transition transform active:scale-95 text-xs sm:text-sm disabled:opacity-40"
                 >
@@ -782,6 +982,11 @@ export default function TourDetailPage({ tours = [], onBookingCreated }) {
         <button
           type="button"
           onClick={() => {
+            if (!isAuthenticated) {
+              showToast('Vui lòng đăng ký/đăng nhập tài khoản.', 'error');
+              openAuthModal();
+              return;
+            }
             document.getElementById('booking-section')?.scrollIntoView({ behavior: 'smooth' });
           }}
           className="px-5 py-2.5 bg-sky-600 hover:bg-sky-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-md transition"
@@ -791,20 +996,28 @@ export default function TourDetailPage({ tours = [], onBookingCreated }) {
       </div>
 
       {/* Cổng Thanh toán VietQR / MoMo mô phỏng */}
-      <PaymentModal
-        isOpen={isPaymentModalOpen}
-        onClose={() => setIsPaymentModalOpen(false)}
-        booking={activeBooking}
-        onPaymentSuccess={handlePaymentSuccess}
-      />
+      {isPaymentModalOpen && (
+        <Suspense fallback={null}>
+          <PaymentModal
+            isOpen={isPaymentModalOpen}
+            onClose={() => setIsPaymentModalOpen(false)}
+            booking={activeBooking}
+            onPaymentSuccess={handlePaymentSuccess}
+          />
+        </Suspense>
+      )}
 
       {/* Vé Điện Tử E-Ticket / Boarding Pass có QR Code */}
-      <ETicketModal
-        isOpen={isTicketModalOpen}
-        onClose={() => setIsTicketModalOpen(false)}
-        booking={activeBooking}
-        tour={currentTour}
-      />
+      {isTicketModalOpen && (
+        <Suspense fallback={null}>
+          <ETicketModal
+            isOpen={isTicketModalOpen}
+            onClose={() => setIsTicketModalOpen(false)}
+            booking={activeBooking}
+            tour={currentTour}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }

@@ -50,7 +50,10 @@ export default function HomePage({ tours = [] }) {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    navigate(`/tours?search=${encodeURIComponent(keyword)}&region=${encodeURIComponent(region)}&mood=${encodeURIComponent(heroActiveMood)}`);
+    const params = new URLSearchParams();
+    if (keyword.trim()) params.set('search', keyword.trim());
+    if (region) params.set('region', region);
+    navigate(`/tours?${params.toString()}`);
   };
 
   const activeMoodData = getMoodById(selectedMood) || TRAVEL_MOODS[0];
@@ -71,7 +74,7 @@ export default function HomePage({ tours = [] }) {
   return (
     <div className="space-y-20 pb-20">
       
-      {/* 1. HERO SECTION: THE SOUL OF TRAVEL - TRAVEL BY MOOD (Ấm áp, Sống động, Chữa lành) */}
+      {/* 1. HERO SECTION: TRAVEL WHERE YOUR SOUL LEADS - TRAVEL BY MOOD (Ấm áp, Sống động, Chữa lành) */}
       <section className="relative text-white min-h-[640px] lg:min-h-[720px] flex items-center px-6 sm:px-10 lg:px-16 overflow-hidden shadow-2xl bg-stone-950 rounded-3xl mx-2 sm:mx-4 my-2 border border-amber-400/30 shadow-[0_15px_60px_rgba(245,158,11,0.18)] transition-all duration-700">
         {/* Phông nền phong cảnh rực rỡ, chan hòa nắng ấm, giàu cảm xúc theo từng tâm trạng */}
         <div className="absolute inset-0 z-0 overflow-hidden">
@@ -93,21 +96,21 @@ export default function HomePage({ tours = [] }) {
         {/* Nội dung chính Hero mang đậm nét riêng: "Travel by Mood" */}
         <div className="relative z-10 max-w-4xl py-12 lg:py-16 space-y-6">
           
-          {/* Brand Eyebrow: The Soul of Travel */}
+          {/* Brand Eyebrow: Travel Where Your Soul Leads */}
           <div className="flex items-center gap-3 text-amber-300 text-xs sm:text-sm font-semibold tracking-[0.25em] uppercase">
             <span className="w-8 h-[2px] bg-amber-400 inline-block"></span>
             <span className="flex items-center gap-1.5">
               <Sparkles className="w-4 h-4 text-amber-400" />
-              THE SOUL OF TRAVEL — TRAVEL BY MOOD
+              TRAVEL WHERE YOUR SOUL LEADS — TRAVEL BY MOOD
             </span>
           </div>
 
           {/* Tiêu đề cảm xúc: Bắt đầu bằng câu hỏi gần gũi */}
-          <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-[54px] font-bold text-white tracking-tight leading-tight sm:leading-[1.15] drop-shadow-2xl">
-            <span className="block text-slate-100">
+          <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-[54px] font-bold text-white tracking-normal leading-[1.32] sm:leading-[1.28] md:leading-[1.25] drop-shadow-2xl">
+            <span className="block text-slate-100 pb-2 sm:pb-3">
               Hôm Nay Bạn Muốn Tâm Hồn Mình
             </span>
-            <span className="block pt-1.5 bg-gradient-to-r from-amber-300 via-orange-300 to-rose-300 bg-clip-text text-transparent">
+            <span className="inline-block py-1 bg-gradient-to-r from-amber-300 via-orange-300 to-rose-300 bg-clip-text text-transparent">
               Thuộc Về Khoảng Trời Nào?
             </span>
           </h1>
@@ -345,7 +348,7 @@ export default function HomePage({ tours = [] }) {
             <div className="lg:col-span-7 space-y-4">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 text-xs font-bold border border-amber-200 dark:border-amber-800">
                 <Sparkles className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                <span>Triết Lý Thương Hiệu — The Soul of Travel</span>
+                <span>Triết Lý Thương Hiệu — Travel Where Your Soul Leads</span>
               </div>
 
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-serif font-black text-slate-900 dark:text-white leading-tight">
@@ -512,7 +515,7 @@ export default function HomePage({ tours = [] }) {
       <section className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center max-w-2xl mx-auto mb-12 space-y-2">
           <span className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">An Tâm & Tinh Tế</span>
-          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">Trải Nghiệm Khác Biệt Cùng SmartTour</h2>
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">Trải Nghiệm Khác Biệt Cùng SoulTrip</h2>
           <p className="text-xs text-slate-500 dark:text-slate-400">Chúng tôi đồng hành để mỗi khoảnh khắc của bạn đều trọn vẹn và an nhiên.</p>
         </div>
 

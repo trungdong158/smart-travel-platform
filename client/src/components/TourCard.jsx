@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Clock, MapPin, Star, Users, Plane, Bus, Navigation, Sparkles } from 'lucide-react';
+import { Heart, Clock, MapPin, Star, Users, Plane, Bus, Navigation, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useWishlist } from '../context/WishlistContext';
 import { formatVND } from '../utils/format';
 import { getMoodById } from '../utils/moods';
@@ -8,6 +9,25 @@ export default function TourCard({ tour }) {
   const { isFavorite, toggleWishlist } = useWishlist();
   const fav = isFavorite(tour.id);
   const mood = getMoodById(tour.mood_id);
+
+  // Danh sách ảnh cho slider (2-3 ảnh)
+  const images = (tour.gallery && Array.isArray(tour.gallery) && tour.gallery.length > 0)
+    ? tour.gallery
+    : [tour.featured_image];
+
+  const [activeImgIndex, setActiveImgIndex] = useState(0);
+
+  const handlePrev = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setActiveImgIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1));
+  };
+
+  const handleNext = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setActiveImgIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0));
+  };
 
   // Chuẩn hóa nhãn phương tiện ngắn gọn, tinh tế và đẹp mắt
   const cleanTransport = (() => {
@@ -43,21 +63,57 @@ export default function TourCard({ tour }) {
 
   return (
     <div className="group bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col">
-      {/* Hình ảnh và Badges Cảm xúc */}
-      <div className="relative aspect-[16/10] overflow-hidden bg-slate-100 dark:bg-slate-800">
+      {/* Slider hình ảnh của chuyến đi (2-3 ảnh với nút lướt trái/phải) */}
+      <div className="relative aspect-[16/10] overflow-hidden bg-slate-100 dark:bg-slate-800 select-none">
         <img
-          src={tour.featured_image}
-          alt={tour.title}
+          src={images[activeImgIndex]}
+          alt={`${tour.title} - Ảnh ${activeImgIndex + 1}`}
           loading="lazy"
+          referrerPolicy="no-referrer"
           onError={(e) => {
             e.currentTarget.onerror = null;
-            e.currentTarget.src = 'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1200&q=80';
+            const fallback = (images.find((img) => img && img !== e.currentTarget.src)) || 'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1200&q=80';
+            e.currentTarget.src = fallback;
           }}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
         />
 
         {/* Lớp phủ điện ảnh nhẹ khi hover */}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity pointer-events-none"></div>
+
+        {/* Nút lướt ảnh Trái / Phải */}
+        {images.length > 1 && (
+          <>
+            <button
+              type="button"
+              onClick={handlePrev}
+              aria-label="Ảnh trước"
+              className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-slate-950/60 hover:bg-slate-950/90 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all backdrop-blur-sm shadow-md hover:scale-110 active:scale-95 z-10"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={handleNext}
+              aria-label="Ảnh tiếp theo"
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-slate-950/60 hover:bg-slate-950/90 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all backdrop-blur-sm shadow-md hover:scale-110 active:scale-95 z-10"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+
+            {/* Chấm chỉ báo vị trí ảnh (Dots) */}
+            <div className="absolute bottom-2.5 inset-x-0 flex items-center justify-center gap-1 z-10 pointer-events-none">
+              {images.map((_, idx) => (
+                <span
+                  key={idx}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    idx === activeImgIndex ? 'w-4 bg-amber-400 shadow' : 'w-1.5 bg-white/60'
+                  }`}
+                />
+              ))}
+            </div>
+          </>
+        )}
 
         {/* Badge Thể loại */}
         <span className="absolute top-3 left-3 bg-slate-900/75 backdrop-blur-md text-white text-[11px] font-semibold px-2.5 py-1 rounded-full shadow-sm">
@@ -92,6 +148,7 @@ export default function TourCard({ tour }) {
             <span>{mood.shortName}</span>
           </span>
         )}
+
       </div>
 
       {/* Thông tin Tour */}

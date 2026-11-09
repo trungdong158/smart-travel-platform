@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
-const JWT_SECRET = require('../config/jwt');
+
+const JWT_SECRET = process.env.JWT_SECRET || 'smarttour_super_secret_key_2026_jwt';
 
 /**
  * Middleware xác thực JSON Web Token (JWT)
@@ -12,7 +13,7 @@ const authenticateToken = (req, res, next) => {
   if (!token) {
     return res.status(401).json({
       success: false,
-      message: 'Vui lòng đăng nhập để thực hiện chức năng này.'
+      message: 'Vui lòng đăng ký/đăng nhập tài khoản.'
     });
   }
 
