@@ -562,7 +562,7 @@ export default function BlogPage({ tours = [] }) {
                 <article 
                   key={blog.id}
                   id={`blog-post-${blog.id}`}
-                  className={`bg-white dark:bg-slate-900 rounded-3xl border shadow-sm hover:shadow-md transition-all duration-300 max-h-[calc(100dvh-5rem)] overflow-hidden flex flex-col ${
+                  className={`bg-white dark:bg-slate-900 rounded-3xl border shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col ${
                     highlightedBlogId === String(blog.id)
                       ? 'border-amber-400 ring-2 ring-amber-300/60'
                       : 'border-slate-200/90 dark:border-slate-800'
@@ -624,7 +624,7 @@ export default function BlogPage({ tours = [] }) {
                       {blog.title}
                     </h2>
 
-                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-light leading-relaxed whitespace-pre-line line-clamp-3">
+                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-light leading-relaxed whitespace-pre-line">
                       {blog.content}
                     </p>
                   </div>
@@ -633,7 +633,7 @@ export default function BlogPage({ tours = [] }) {
                   {Array.isArray(blog.images) && blog.images.length > 0 && blog.images[0] && (
                     <div className="px-5 sm:px-7 pt-4">
                       {blog.images.length === 1 ? (
-                        <div className="relative aspect-video max-h-[28dvh] rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 shadow-inner">
+                        <div className="relative aspect-video rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 shadow-inner">
                           <img 
                             src={blog.images[0]} 
                             alt={blog.title}
@@ -642,7 +642,7 @@ export default function BlogPage({ tours = [] }) {
                           />
                         </div>
                       ) : (
-                        <div className={`grid gap-2 rounded-2xl overflow-hidden max-h-[28dvh] ${
+                        <div className={`grid gap-2 rounded-2xl overflow-hidden ${
                           blog.images.length === 2 ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3'
                         }`}>
                           {blog.images.slice(0, 6).map((img, idx) => (
