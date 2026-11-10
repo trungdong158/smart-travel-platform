@@ -154,7 +154,7 @@ const login = (req, res) => {
  * Lấy thông tin tài khoản hiện tại
  */
 const getProfile = (req, res) => {
-  const user = users.find((u) => u.id === req.user.id);
+  const user = users.find((u) => String(u.id) === String(req.user.id) || (u.email && req.user.email && u.email.toLowerCase() === req.user.email.toLowerCase()));
   if (!user) {
     return res.status(404).json({ success: false, message: 'Không tìm thấy thông tin tài khoản!' });
   }
@@ -178,7 +178,7 @@ const getProfile = (req, res) => {
  */
 const updateProfile = (req, res) => {
   const { fullName, phone, avatar } = req.body;
-  const user = users.find((u) => u.id === req.user.id);
+  const user = users.find((u) => String(u.id) === String(req.user.id) || (u.email && req.user.email && u.email.toLowerCase() === req.user.email.toLowerCase()));
 
   if (!user) {
     return res.status(404).json({ success: false, message: 'Người dùng không tồn tại!' });
@@ -219,7 +219,7 @@ const updateProfile = (req, res) => {
  */
 const changePassword = (req, res) => {
   const { currentPassword, newPassword } = req.body;
-  const user = users.find((u) => u.id === req.user.id);
+  const user = users.find((u) => String(u.id) === String(req.user.id) || (u.email && req.user.email && u.email.toLowerCase() === req.user.email.toLowerCase()));
 
   if (!user) {
     return res.status(404).json({ success: false, message: 'Người dùng không tồn tại!' });

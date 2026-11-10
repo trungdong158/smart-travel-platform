@@ -1,10 +1,30 @@
 const {
+  users,
   blogs,
   tours,
   saveBlogs,
   getBlogApprovalRequired,
   setBlogApprovalRequired
 } = require('../config/data');
+
+const enrichBlogWithAuthor = (blog) => {
+  if (!blog) return blog;
+  let authorAvatar = blog.author && blog.author.avatar ? blog.author.avatar : '';
+  if (blog.author) {
+    const u = users.find(
+      (user) =>
+        String(user.id) === String(blog.author.id) ||
+        (user.email && blog.author.email && user.email.toLowerCase() === blog.author.email.toLowerCase())
+    );
+    if (u && u.avatar) {
+      authorAvatar = u.avatar;
+    }
+  }
+  return {
+    ...blog,
+    author: blog.author ? { ...blog.author, avatar: authorAvatar } : blog.author
+  };
+};
 
 const normalizeBlogStatus = (blog) => {
   if (!blog || !blog.status) return 'APPROVED';
@@ -79,7 +99,7 @@ const getAllBlogs = (req, res) => {
     const totalPages = Math.ceil(total / limit);
     const startIndex = (page - 1) * limit;
     const endIndex = startIndex + limit;
-    const pagedItems = filtered.slice(startIndex, endIndex);
+    const pagedItems = filtered.slice(startIndex, endIndex).map(enrichBlogWithAuthor);
     const hasMore = endIndex < total;
 
     res.json({
@@ -127,7 +147,7 @@ const getBlogById = (req, res) => {
 
     res.json({
       success: true,
-      data: blog
+      data: enrichBlogWithAuthor(blog)
     });
   } catch (error) {
     res.status(500).json({
@@ -350,7 +370,7 @@ const getMyBlogs = (req, res) => {
 
     res.json({
       success: true,
-      data: myBlogs
+      data: myBlogs.map(enrichBlogWithAuthor)
     });
   } catch (error) {
     console.error('Lỗi khi lấy bài viết của tôi:', error);

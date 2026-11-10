@@ -59,7 +59,7 @@ const PRESET_AVATARS = [
 ];
 
 // Helper nén và cắt ảnh vuông tỉ lệ 1:1 siêu nhẹ (max 400x400)
-function resizeImageToSquare(file, targetSize = 400, quality = 0.85) {
+function resizeImageToSquare(file, targetSize = 256, quality = 0.8) {
   return new Promise((resolve, reject) => {
     if (!file || !file.type.startsWith('image/')) {
       return reject(new Error('Vui lòng chọn một file hình ảnh hợp lệ (JPG, PNG, WEBP)!'));
@@ -113,6 +113,14 @@ export default function CustomerProfilePage() {
   const [phone, setPhone] = useState(currentUser?.phone || '');
   const [phoneError, setPhoneError] = useState('');
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+
+  // Đồng bộ form khi thông tin người dùng được tải hoặc cập nhật
+  const [prevUser, setPrevUser] = useState(currentUser);
+  if (currentUser !== prevUser) {
+    setPrevUser(currentUser);
+    setFullName(currentUser?.fullName || '');
+    setPhone(currentUser?.phone || '');
+  }
 
   // Kiểm tra số điện thoại khi người dùng nhập xong và chuyển sang ô khác (blur)
   const handlePhoneBlur = () => {
@@ -273,7 +281,7 @@ export default function CustomerProfilePage() {
 
     try {
       showToast('Đang nạp và tối ưu ảnh đại diện...', 'info');
-      const optimizedBase64 = await resizeImageToSquare(file, 400, 0.85);
+      const optimizedBase64 = await resizeImageToSquare(file, 256, 0.8);
       setTempAvatar(optimizedBase64);
       showToast('Đã tải ảnh lên thành công! Bấm "Lưu Ảnh Đại Diện" để áp dụng.', 'success');
     } catch (err) {
@@ -302,7 +310,11 @@ export default function CustomerProfilePage() {
   const handleSaveAvatar = async () => {
     setIsSavingAvatar(true);
     try {
-      await updateProfile({ avatar: tempAvatar });
+      await updateProfile({
+        avatar: tempAvatar,
+        fullName: currentUser?.fullName || '',
+        phone: currentUser?.phone || ''
+      });
       showToast('Cập nhật ảnh đại diện thành công!', 'success');
       setIsAvatarModalOpen(false);
     } catch (err) {
@@ -355,7 +367,11 @@ export default function CustomerProfilePage() {
 
     setIsUpdatingProfile(true);
     try {
-      await updateProfile({ fullName, phone });
+      await updateProfile({
+        fullName: fullName.trim(),
+        phone: phone ? phone.trim() : '',
+        avatar: currentUser?.avatar || ''
+      });
       showToast('Cập nhật thông tin cá nhân thành công!', 'success');
     } catch (err) {
       showToast(err.response?.data?.message || 'Lỗi cập nhật hồ sơ!', 'error');

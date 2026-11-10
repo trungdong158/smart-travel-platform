@@ -222,13 +222,22 @@ export default function Navbar() {
                       <img
                         src={currentUser.avatar}
                         alt={currentUser.fullName}
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.style.display = 'none';
+                          if (e.currentTarget.nextSibling) {
+                            e.currentTarget.nextSibling.style.display = 'flex';
+                          }
+                        }}
                         className="w-9 h-9 rounded-full object-cover ring-2 ring-sky-500/30 shrink-0"
                       />
-                    ) : (
-                      <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-sky-500 to-indigo-600 text-white flex items-center justify-center font-bold text-sm shrink-0">
-                        {currentUser?.fullName?.charAt(0) || 'U'}
-                      </div>
-                    )}
+                    ) : null}
+                    <div
+                      style={{ display: currentUser?.avatar ? 'none' : 'flex' }}
+                      className="w-9 h-9 rounded-full bg-gradient-to-tr from-sky-500 to-indigo-600 text-white items-center justify-center font-bold text-sm shrink-0"
+                    >
+                      {currentUser?.fullName?.charAt(0) || 'U'}
+                    </div>
                     <div className="min-w-0 flex-1">
                       <p className="font-bold text-slate-900 dark:text-white truncate">{currentUser.fullName}</p>
                       <p className="text-slate-400 dark:text-slate-500 text-[11px] truncate">{currentUser.email}</p>
@@ -447,13 +456,22 @@ export default function Navbar() {
                     <img
                       src={currentUser.avatar}
                       alt={currentUser.fullName}
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.style.display = 'none';
+                        if (e.currentTarget.nextSibling) {
+                          e.currentTarget.nextSibling.style.display = 'flex';
+                        }
+                      }}
                       className="w-8 h-8 rounded-full object-cover shrink-0 ring-1 ring-sky-500/30"
                     />
-                  ) : (
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-sky-500 to-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
-                      {currentUser?.fullName?.charAt(0) || 'U'}
-                    </div>
-                  )}
+                  ) : null}
+                  <div
+                    style={{ display: currentUser?.avatar ? 'none' : 'flex' }}
+                    className="w-8 h-8 rounded-full bg-gradient-to-tr from-sky-500 to-indigo-600 text-white items-center justify-center font-bold text-xs shrink-0"
+                  >
+                    {currentUser?.fullName?.charAt(0) || 'U'}
+                  </div>
                   <div className="min-w-0">
                     <p className="font-bold text-xs text-slate-900 dark:text-white truncate">{currentUser.fullName}</p>
                     <p className="text-[11px] text-slate-400 dark:text-slate-500 truncate">{currentUser.email}</p>

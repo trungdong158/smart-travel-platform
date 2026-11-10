@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const { users } = require('../config/data');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'smarttour_super_secret_key_2026_jwt';
 
@@ -24,7 +25,17 @@ const authenticateToken = (req, res, next) => {
         message: 'Phiên đăng nhập không hợp lệ hoặc đã hết hạn.'
       });
     }
-    req.user = user;
+    const found = users.find(
+      (u) =>
+        String(u.id) === String(user.id) ||
+        (u.email && user.email && u.email.toLowerCase() === user.email.toLowerCase())
+    );
+    req.user = {
+      ...user,
+      fullName: found ? found.fullName : user.fullName,
+      avatar: found && found.avatar ? found.avatar : '',
+      role: found ? found.role : user.role
+    };
     next();
   });
 };
@@ -57,7 +68,17 @@ const optionalAuth = (req, res, next) => {
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (!err && user) {
-      req.user = user;
+      const found = users.find(
+        (u) =>
+          String(u.id) === String(user.id) ||
+          (u.email && user.email && u.email.toLowerCase() === user.email.toLowerCase())
+      );
+      req.user = {
+        ...user,
+        fullName: found ? found.fullName : user.fullName,
+        avatar: found && found.avatar ? found.avatar : '',
+        role: found ? found.role : user.role
+      };
     } else {
       req.user = null;
     }

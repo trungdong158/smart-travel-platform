@@ -13,23 +13,66 @@ export function AuthProvider({ children }) {
     }
   });
 
-  const [token, setToken] = useState(() => localStorage.getItem('token') || '');
+  const [token, setToken] = useState(() => {
+    try {
+      return localStorage.getItem('token') || '';
+    } catch {
+      return '';
+    }
+  });
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
+  // Lưu trữ currentUser vào localStorage an toàn
   useEffect(() => {
-    if (currentUser) {
-      localStorage.setItem('user', JSON.stringify(currentUser));
-    } else {
-      localStorage.removeItem('user');
+    try {
+      if (currentUser) {
+        localStorage.setItem('user', JSON.stringify(currentUser));
+      } else {
+        localStorage.removeItem('user');
+      }
+    } catch (err) {
+      console.warn('Lỗi khi ghi user vào localStorage:', err);
     }
   }, [currentUser]);
 
+  // Lưu trữ token vào localStorage an toàn
   useEffect(() => {
-    if (token) {
-      localStorage.setItem('token', token);
-    } else {
-      localStorage.removeItem('token');
+    try {
+      if (token) {
+        localStorage.setItem('token', token);
+      } else {
+        localStorage.removeItem('token');
+      }
+    } catch (err) {
+      console.warn('Lỗi khi ghi token vào localStorage:', err);
     }
+  }, [token]);
+
+  // Tự động đồng bộ và khôi phục thông tin hồ sơ (gồm ảnh đại diện) mới nhất từ máy chủ
+  useEffect(() => {
+    let isMounted = true;
+    if (token) {
+      authService
+        .getProfile()
+        .then((res) => {
+          if (!isMounted || !res || !res.user) return;
+          setCurrentUser((prev) => {
+            const serverUser = res.user;
+            // Nếu trên server không có avatar nhưng client đang có sẵn thì giữ lại và đồng bộ ngược lên server
+            if (!serverUser.avatar && prev?.avatar) {
+              serverUser.avatar = prev.avatar;
+              authService.updateProfile({ avatar: prev.avatar }).catch(() => {});
+            }
+            return serverUser;
+          });
+        })
+        .catch((err) => {
+          console.warn('Không thể đồng bộ hồ sơ từ server:', err?.message);
+        });
+    }
+    return () => {
+      isMounted = false;
+    };
   }, [token]);
 
   const login = async (credentials) => {
@@ -49,8 +92,12 @@ export function AuthProvider({ children }) {
   const logout = () => {
     setCurrentUser(null);
     setToken('');
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
+    try {
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+    } catch (err) {
+      console.warn('Lỗi khi xoá localStorage:', err);
+    }
   };
 
   const updateProfile = async (profileData) => {
